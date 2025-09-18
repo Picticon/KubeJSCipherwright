@@ -1,0 +1,109 @@
+{
+  "type": "minecraft:blasting",
+  "name": "Blasting",
+  "category": "Minecraft",
+  "padtop": 12,
+  "padbottom": 12,
+  "padleft": 12,
+  "padright": 12,
+  "inputs": [
+    {
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 0,
+      "single": true,
+      "path": "ingredient"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "itemstack",
+      "gridx": 3,
+      "gridy": 0,
+      "large": true,
+      "path": "result",
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "experience",
+      "placeholder": "",
+      "label": "XP",
+      "type": "number",
+      "gridx": 3,
+      "gridy": 2,
+      "gridw": 3
+    },
+    {
+      "path": "cookingtime",
+      "placeholder": "ticks",
+      "label": "Cook Time",
+      "type": "number",
+      "gridx": 3,
+      "gridy": 3,
+      "gridw": 3
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "left_arrow",
+      "gridx": 1.2,
+      "gridy": 0
+    },
+    {
+      "type": "item",
+      "item": "minecraft:blast_furnace",
+      "gridx": 5,
+      "gridy": 0
+    },
+    {
+      "type": "text",
+      "formula": "ticks2seconds:cookingtime",
+      "gridx": 3,
+      "gridy": 4
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:result>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.blasting(<<itemstack:result>>, <<ingredient:ingredient>>, <<parameter:experience>>, <<parameter:cookingtime>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:'<<oldid>>'});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "JSON",
+          "flags": "prettyjson",
+          "fragments": [
+            "{'type':'<<type>>','cookingtime':<<parameter:cookingtime>>,'experience':<<parameter:experience>>,'ingredient':<<ingredient:ingredient>>,'result':<<itemstack:result>>}"
+          ]
+        }
+      ]
+    }
+  ]
+}

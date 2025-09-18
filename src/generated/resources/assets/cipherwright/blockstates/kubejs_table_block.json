@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "cipherwright:block/kubejs_table_block"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "name": "Shapeless 3x3" ,
+  "category": "Minecraft",
+  "inputs": [
+    {
+      "type": "ingredient",
+      "path": "ingredients",
+      "gridx": 0,
+      "gridy": 0,
+      "single": true,
+      "repeat": {
+        "shape": "array",
+        "rows": 3,
+        "cols": 3
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "type": "itemstack",
+      "path": "result",
+      "gridx": 5,
+      "gridy": 1,
+      "large": true,
+      "allowtag": false
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "left_arrow",
+      "gridx": 3.2,
+      "gridy": 1
+    },
+    {
+      "type": "item",
+      "item": "minecraft:crafting_table",
+      "gridx": 7,
+      "gridy": 1
+    }
+  ],
+  "parameters": [
+  ],
+  "templates": [
+    {
+      "name": "KubeJS",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:output>>"
+          ]
+        },{
+          "title": "Create",
+          "fragments": [
+            "event.shapeless('<<itemstack:result>>', <<ingredients:ingredients>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:'<<oldid>>'});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "JSON",
+          "flags": "prettyjson",
+          "fragments": [
+            "{'type':'<<type>>','ingredients':<<ingredients:ingredients>>,'result':<<itemstack:result>>}"
+          ]
+        }
+      ]
+    }
+  ]
+
+}

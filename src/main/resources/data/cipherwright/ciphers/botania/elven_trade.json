@@ -1,0 +1,108 @@
+{
+  "type": "botania:elven_trade",
+  "name": "Elven Trade",
+  "category": "Botania",
+  "inputs": [
+    {
+      "path": "ingredients",
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 0,
+      "repeat": {
+        "shape": "array",
+        "rows": 3,
+        "cols": 3
+      },
+      "single": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "output",
+      "type": "itemstack",
+      "gridx": 5,
+      "gridy": 0,
+      "repeat": {
+        "shape": "array",
+        "rows": 3,
+        "cols": 3
+      },
+      "allowtag": false
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "left_arrow",
+      "gridx": 3.3,
+      "gridy": 1
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:output>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<snippet:JSON:Datapack>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:'<<oldid>>'});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KubeJS Addon",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:output>>"
+          ]
+        },{
+          "title": "Create",
+          "fragments": [
+            "event.recipes.botania.elven_trade(<<itemstacks:output>>,<<ingredients:ingredients>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:'<<oldid>>'});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{'type':'<<type>>','ingredients':<<ingredients:ingredients>>,'output':<<itemstacks:output>>}"
+          ],
+          "flags": "prettyjson"
+        }
+      ]
+    }
+  ]
+}
+
