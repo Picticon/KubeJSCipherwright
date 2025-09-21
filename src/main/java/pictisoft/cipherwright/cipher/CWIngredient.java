@@ -3,14 +3,14 @@ package pictisoft.cipherwright.cipher;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class CWIngredient
 {
@@ -48,6 +48,10 @@ public abstract class CWIngredient
         if (this.mode != Mode.ItemStack) return false;
         return ItemAndIngredientHelpers.equalItemstack(this.itemstack, itemStack);
     }
+
+    public abstract String getUniqueIdentifier();
+
+    public abstract Character getCharacter();
 
     public static class CWIngredientTag extends CWIngredient
     {
@@ -87,6 +91,24 @@ public abstract class CWIngredient
             return taglocation == null;
         }
 
+        @Override
+        public String getUniqueIdentifier()
+        {
+            return taglocation.toString();
+        }
+
+        @Override
+        public Character getCharacter()
+        {
+            var str = taglocation.toString();
+            for (var idx = str.length() - 2; idx >= 0; idx--)
+            {
+                if (str.charAt(idx) == '/' || str.charAt(idx) == ':')
+                    return str.charAt(idx + 1);
+            }
+            return '?';
+        }
+
         public TagKey<Item> getTagKey()
         {
             return TagKey.create(Registries.ITEM, taglocation);
@@ -113,6 +135,12 @@ public abstract class CWIngredient
                 this.itemStack = ItemStack.EMPTY;
         }
 
+        @Override
+        public Character getCharacter()
+        {
+            return itemStack.getItem().getDescription().getString().charAt(0);
+        }
+
 
         @Override
         public JsonElement toJson()
@@ -134,6 +162,12 @@ public abstract class CWIngredient
         public boolean isEmpty()
         {
             return itemStack == null || itemStack.isEmpty();
+        }
+
+        @Override
+        public String getUniqueIdentifier()
+        {
+            return ItemAndIngredientHelpers.itemStackToJson(itemStack).toString();
         }
 
         public ItemStack getItemStack()

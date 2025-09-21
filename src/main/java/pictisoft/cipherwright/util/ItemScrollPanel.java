@@ -29,6 +29,9 @@ public class ItemScrollPanel<T> extends ScrollPanel
     private Consumer<Integer> onClick;
     protected Font font;
     private boolean _disabled = false;
+    private boolean _scrolling;
+    private double _barLeft;
+    private double _barWidth = 6;
 
     protected void setSelectedPrivate(int val)
     {
@@ -63,18 +66,6 @@ public class ItemScrollPanel<T> extends ScrollPanel
 //        this.backgroundColor = backgroundColor;
 //        this.font = Minecraft.getInstance().font;
 //    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll)
-    {
-        if (scroll != 0)
-        {
-            this.scrollDistance += -scroll * getScrollAmount();
-            applyScrollLimits();
-            return true;
-        }
-        return false;
-    }
 
     private int getMaxScroll()
     {
@@ -121,12 +112,6 @@ public class ItemScrollPanel<T> extends ScrollPanel
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
-    {
-        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-    }
-
-    @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick)
     {
         if (this.visible) super.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -158,13 +143,16 @@ public class ItemScrollPanel<T> extends ScrollPanel
             if (!_disabled)
             {
                 // Highlight selected item
-                if (i == hoveredidx)
+                if (i == hoveredidx && !_scrolling)
                 {
                     int mix;
                     if (i == getSelectedPrivate()) // over selected item
                         mix = FastColor.ARGB32.lerp(.5f, textColor, selectedColor);
                     else
+                    {
+                        //Chatter.chat("NO HIGHLIGHT " + this._scrolling);
                         mix = FastColor.ARGB32.lerp(.5f, backgroundColor, selectedColor);
+                    }
                     guiGraphics.fill(left, itemY, entryRight, itemY + getItemHeight(), mix);
                 } else
                 {
@@ -221,19 +209,81 @@ public class ItemScrollPanel<T> extends ScrollPanel
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button)
+    {
+        boolean ret = this._scrolling;
+        this._scrolling = false;
+        return ret;
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
         if (!this.visible) return false;
-        if (_disabled) return false;
-        if (super.mouseClicked(mouseX, mouseY, button))
+        if (mouseX < this.left || mouseX > this.right || mouseY < this.top || mouseY > this.bottom) return false;
+
+        this._barLeft = this.left + this.width - _barWidth;
+        this._scrolling = button == 0 && mouseX >= _barLeft && mouseX < _barLeft + _barWidth;
+        Chatter.chat("_scrolling? " + mouseX + " " + _barLeft + " " + mouseX + " " + _barLeft + " " + _barWidth);
+        if (this._scrolling)
         {
+            Chatter.chat("_scrolling! " + mouseX + " " + _barLeft + " " + mouseY + " " + _barLeft + " " + _barWidth);
             return true;
         }
-
+//        int mouseListY = ((int) mouseY) - this.top - this.getContentHeight() + (int) this.scrollDistance - border;
+//        if (mouseX >= left && mouseX <= right && mouseListY < 0)
+//        {
+//            return this.clickPanel(mouseX - left, mouseY - this.top + (int) this.scrollDistance - border, button);
+//        }
+//        return false;
+//        if (super.mouseClicked(mouseX, mouseY, button))
+//        {
+//            return true;
+//        }
+//
         if (button == 0 && getItemOver(mouseX, mouseY) >= 0)
         {
             setSelectedIndex(getItemOver(mouseX, mouseY), true);
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY)
+    {
+        if (!visible) return false;
+        //Chatter.chat(deltaX + " " + deltaY);
+        {
+            int barHeight = (height * height) / (getContentHeight() == 0 ? 1 : getContentHeight());
+
+            if (barHeight < 32) barHeight = 32;
+
+            if (barHeight > height - border * 2)
+                barHeight = height - border * 2;
+
+            int maxScroll = height - barHeight;
+            if (maxScroll != 0)
+            {
+                double moved = deltaY / maxScroll;
+                this.scrollDistance += (float) (getMaxScroll() * moved);
+                applyScrollLimits();
+            }
+            return true;
+        }
+
+//        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scroll)
+    {
+        if (visible && scroll != 0)
+        {
+            Chatter.chat("scroll");
+            this.scrollDistance += -scroll * getScrollAmount();
+            applyScrollLimits();
             return true;
         }
         return false;

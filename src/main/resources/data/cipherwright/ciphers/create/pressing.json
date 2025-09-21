@@ -1,6 +1,6 @@
 {
-  "type": "create:compacting",
-  "name": "Compacting",
+  "type": "create:pressing",
+  "name": "Pressing",
   "category": "Create",
   "inputs": [
     {
@@ -14,29 +14,26 @@
         "rows": 3,
         "cols": 3
       },
-      "allowfluid": true
+      "allowfluid": true,
+      "allowtag": true
     }
   ],
   "outputs": [
     {
       "path": "results",
       "type": "itemstack",
-      "gridx": 5,
-      "gridy": 1,
-      "repeat": {
-        "shape": "array",
-        "rows": 2,
-        "cols": 2
-      },
+      "gridx": 1,
+      "gridy": 5,
+      "index": 0,
       "allowtag": false,
       "allowfluid": true
     }
   ],
   "illustrations": [
     {
-      "type": "left_arrow",
-      "gridx": 3.2,
-      "gridy": 1
+      "type": "down_arrow",
+      "gridx":1,
+      "gridy": 3.2 
     }
   ],
   "parameters": [
@@ -55,8 +52,8 @@
         "Heated",
         "Super Heated"
       ],
-      "gridx": 3,
-      "gridy": 4,
+      "gridx": 4,
+      "gridy": 5,
       "gridw": 4
     }
   ],

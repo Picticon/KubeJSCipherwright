@@ -21,6 +21,8 @@ import pictisoft.cipherwright.util.*;
 import java.io.IOException;
 import java.util.List;
 
+// This class holds an item,fluid,ingredient,tag
+// this is the main user interaction object
 public class CipherSlot
 {
     //private static final Container EMPTY_INVENTORY = new SimpleContainer(0);
@@ -38,6 +40,7 @@ public class CipherSlot
     private int y;
     private int _ticker;
     private int _lasttick;
+    private CompoundTag parameters = new CompoundTag();
 
 //    public void sync(SlotUpdatePacket message)
 //    {
@@ -106,6 +109,12 @@ public class CipherSlot
         return null;
     }
 
+    public boolean canBeItem()
+    {
+        if (cipherobject instanceof CipherWell well) return well.allowItem();
+        return false;
+    }
+
     public boolean canBeTag()
     {
         if (cipherobject instanceof CipherWell well) if (!well.allowTag()) return false;
@@ -162,6 +171,37 @@ public class CipherSlot
     public String getSerialKey()
     {
         return cipherobject.getPathWithIndex() + "[" + this.getX() + "," + this.getY() + "]";
+    }
+
+    public void setWellParameter(String string)
+    {
+        var breaks = string.split(":", 2);
+        if (breaks.length == 2)
+        {
+            parameters.putString(breaks[0], breaks[1]);
+        }
+    }
+
+    private void setWellParameter(String path, String asString)
+    {
+        parameters.putString(path, asString);
+    }
+
+    public String getWellParameter(CipherParameter p)
+    {
+        if (parameters.contains(p.path)) return parameters.getString(p.path);
+        return "";
+    }
+
+    public String getWellMember(CipherParameter p)
+    {
+        return p.path;
+    }
+
+    public void clear()
+    {
+        setItem(ItemStack.EMPTY);
+        parameters = new CompoundTag();
     }
 
     public enum SlotMode
@@ -236,6 +276,7 @@ public class CipherSlot
 
     public void setItem(ItemStack stack)
     {
+        if (this.cipherobject instanceof CipherWell well && !well.allowItem() && !stack.isEmpty()) return;
         if (this.single) stack.setCount(1);
         // Store the ghost item instead of putting it in an inventory
 //        if (stack.isEmpty())
@@ -251,6 +292,7 @@ public class CipherSlot
 
     public void setFluid(FluidStack fluid)
     {
+        if (this.cipherobject instanceof CipherWell well && !well.allowFluid() && !fluid.isEmpty()) return;
         this.ghostFluid = fluid.copy();
         this.ghostStack = ItemStack.EMPTY;
         this.tagKey = null;
@@ -267,6 +309,7 @@ public class CipherSlot
 
     public void setTagKey(TagKey<Item> tagKey)
     {
+        if (this.cipherobject instanceof CipherWell well && !well.allowTag() && tagKey != null) return;
         this.ghostStack = ItemStack.EMPTY; // ^ first
         this.ghostFluid = FluidStack.EMPTY;
         setMode(SlotMode.TAG);
@@ -366,6 +409,61 @@ public class CipherSlot
             gui.drawString(font, ghostFluid.getAmount() + "", 0, 0, 0xffffff);
             gui.pose().popPose();
         }
+        if (this.getCipherobject() instanceof CipherWell well)
+        {
+            for (var wp : well.getWellParameters())
+            {
+                if (wp.getDisplay() != null)
+                {
+                    String text = getWellParameter(wp);
+                    if (wp.getDisplay().contains("percent"))
+                    {
+                        try
+                        {
+                            var fl = Float.parseFloat(text);
+                            text = String.format("%.0f%%", fl * 100);
+                        } catch (Exception ignored)
+                        {
+                        }
+                    }
+                    var font = Minecraft.getInstance().font;
+                    var w = font.width(text);
+                    var h = font.lineHeight;
+                    var x = well.width / 2 - w / 2;
+                    var y = well.height / 2 - h / 2;
+                    gui.pose().pushPose();
+                    gui.pose().translate(this.x, this.y, 1000);
+                    gui.pose().scale(.5f, .5f, 1f);
+                    if (wp.getDisplay().contains("top-"))
+                    {
+                        y = 1;
+                    } else if (wp.getDisplay().contains("bottom-"))
+                    {
+                        y = well.height - 1;
+                    }
+                    if (wp.getDisplay().contains("center-"))
+                    {
+                        y = well.height / 2;
+                    }
+                    if (wp.getDisplay().contains("-left"))
+                    {
+                        x = 1;
+                    } else if (wp.getDisplay().contains("-right"))
+                    {
+                        x = well.width - w;
+                    } else if (wp.getDisplay().contains("-center"))
+                    {
+                        x = well.width / 2 - w / 2;
+                    }
+                    if (text != null)
+                    {
+                        gui.pose().translate(x, y, 1000);
+                        gui.drawString(font, text, 0, 0, 0xffffff);
+                    }
+                    gui.pose().popPose();
+                }
+            }
+        }
         gui.pose().popPose();
     }
 
@@ -379,6 +477,7 @@ public class CipherSlot
         }
     }
 
+    // This handles moving the recipe JSON to the SLOT.
     public void setItem(JsonObject json, Cipher cipher)
     {
         if (json == null)
@@ -398,6 +497,7 @@ public class CipherSlot
             var row = cipherobject.index / cipherobject.cols;
             var col = cipherobject.index - (row * cipherobject.cols);
             setIngredient(gridrecipe[row][col]);
+
 //            var jobj = JsonHelpers.getNestedObject(json, cipherobject.getPathWithIndex(row));
 //            var mobj = JsonHelpers.getNestedObject(json, cipherobject.getKey());
 //            if (jobj.isString() && mobj.isJsonObject()) // need something like "###"
@@ -429,6 +529,7 @@ public class CipherSlot
                     if (child.isJsonObject())
                     {
                         setslotfromjson(child.jobject);
+                        trySetWellParameters(child.jobject);
                     }
                 }
                 break;
@@ -437,6 +538,7 @@ public class CipherSlot
                     if (child.isJsonObject())
                     {
                         setIngredient(child.jobject);
+                        trySetWellParameters(child.jobject);
                     }
                 }
                 break;
@@ -446,6 +548,20 @@ public class CipherSlot
         {
             var t = JsonHelpers.getNestedObject(json, getCipherobject().countfield);
             if (t.isNumber() && this.ghostStack != null) this.ghostStack.setCount((int) t.number);
+        }
+    }
+
+    private void trySetWellParameters(JsonObject jobject)
+    {
+        if (this.getCipherobject() instanceof CipherWell well)
+        {
+            for (var p : well.getWellParameters())
+            {
+                if (jobject.has(p.getPath()))
+                {
+                    setWellParameter(p.getPath(), jobject.get(p.getPath()).getAsString());
+                }
+            }
         }
     }
 
@@ -572,6 +688,10 @@ public class CipherSlot
                 tag.putInt("tagcount", this.tagCount);
                 break;
         }
+        if (getCipherobject() instanceof CipherWell well)
+        {
+            tag.put("parameters", parameters);
+        }
     }
 
     public void loadExtra(CompoundTag tag)
@@ -622,6 +742,7 @@ public class CipherSlot
                 this.tagCount = tag.getInt("tagcount");
                 break;
         }
+        if (tag.contains("parameters")) parameters = tag.getCompound("parameters");
     }
 
 //    // Compare if client state is out-of-date

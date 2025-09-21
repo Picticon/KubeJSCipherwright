@@ -62,6 +62,7 @@ public class FluidHelper
 
     public void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack, int posX, int posY)
     {
+        RenderSystem.enableBlend();
         Fluid fluid = fluidStack.getFluid();
         if (fluid.isSame(Fluids.EMPTY))
         {
@@ -84,6 +85,8 @@ public class FluidHelper
 
                     drawTiledSprite(guiGraphics, width, height, fluidColor, scaledAmount, fluidStillSprite, posX, posY);
                 });
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.disableBlend();
     }
 
     private static void drawTiledSprite(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite, int posX, int posY) {

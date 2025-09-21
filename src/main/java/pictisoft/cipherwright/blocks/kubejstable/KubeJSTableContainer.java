@@ -23,7 +23,7 @@ import java.util.List;
 public class KubeJSTableContainer extends AbstractContainerMenu
 {
     private static final int INVENTORY_PAD_LEFT = 8; // for inventory only
-    private static final int INVENTORY_PAD_TOP = 20; // space between cipher and inventory   (for "player inventory" string)
+    private static final int INVENTORY_PAD_TOP = 8; // space between cipher and inventory   (for "player inventory" string)
     private static final int INVENTORY_PAD_RIGHT = 8; // for inventory only
     private static final int INVENTORY_PAD_BOTTOM = 8; // space between cipher and inventory
     private static final int INVENTORY_WIDTH = 9 * 18; // size of inventory

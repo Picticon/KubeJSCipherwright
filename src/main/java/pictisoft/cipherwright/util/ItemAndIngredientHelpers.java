@@ -6,7 +6,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -14,7 +13,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
-import pictisoft.cipherwright.cipher.CWIngredient;
 
 public class ItemAndIngredientHelpers
 {
@@ -33,7 +31,7 @@ public class ItemAndIngredientHelpers
         return ig;
     }
 
-    public static JsonElement ingredientWithNBTToJson(Ingredient ingredient)
+    public static JsonObject ingredientWithNBTToJson(Ingredient ingredient)
     {
         JsonObject result = new JsonObject();
         // Get the first matching stack (assuming single item ingredient)
@@ -56,7 +54,7 @@ public class ItemAndIngredientHelpers
         return result;
     }
 
-    public static JsonElement itemStackToJson(ItemStack itemStack)
+    public static JsonObject itemStackToJson(ItemStack itemStack)
     {
         JsonObject result = new JsonObject();
         var item = itemStack.getItem();

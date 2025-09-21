@@ -61,7 +61,7 @@
           "title": "Delete",
           "condition": "remove",
           "fragments": [
-            "event.remove({id:'<<oldid>>'});"
+            "event.remove({id:\"<<oldid>>\"});"
           ]
         }
       ]
@@ -87,7 +87,7 @@
           "title": "Delete",
           "condition": "remove",
           "fragments": [
-            "event.remove({id:'<<oldid>>'});"
+            "event.remove({id:\"<<oldid>>\"});"
           ]
         }
       ]
@@ -99,7 +99,7 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{'type':'<<type>>','ingredients':<<ingredients:ingredients>>,'output':<<itemstack:output>>,'mana':<<parameter:mana>>}"
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"output\":<<itemstack:output>>,\"mana\":<<parameter:mana>>}"
           ],
           "flags": "prettyjson"
         }

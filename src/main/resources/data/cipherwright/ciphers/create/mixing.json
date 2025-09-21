@@ -1,6 +1,6 @@
 {
-  "type": "create:compacting",
-  "name": "Compacting",
+  "type": "create:mixing",
+  "name": "Mixing",
   "category": "Create",
   "inputs": [
     {
@@ -23,13 +23,9 @@
       "type": "itemstack",
       "gridx": 5,
       "gridy": 1,
-      "repeat": {
-        "shape": "array",
-        "rows": 2,
-        "cols": 2
-      },
       "allowtag": false,
-      "allowfluid": true
+      "allowfluid": true,
+      "index": 0
     }
   ],
   "illustrations": [

@@ -15,42 +15,87 @@ public class Slice9
         this.gridsize = gridSize;
     }
 
-    public void drawNineSlice(GuiGraphics guiGraphics, int leftPos, int topPos, int guiWidth, int guiHeight)
+    public void drawNineSlice(GuiGraphics guiGraphics, int x, int y, int w, int h)
     {
-        var ts = gridsize*3;
-        guiGraphics.blit(texture, leftPos, topPos, 0, 0, gridsize, gridsize, ts, ts); // Top-left
-        guiGraphics.blit(texture, leftPos + guiWidth - gridsize, topPos, gridsize * 2, 0, gridsize, gridsize, ts, ts); // Top-right
-        guiGraphics.blit(texture, leftPos, topPos + guiHeight - gridsize, 0, gridsize * 2, gridsize, gridsize, ts, ts); // Bottom-left
-        guiGraphics.blit(texture, leftPos + guiWidth - gridsize, topPos + guiHeight - gridsize, gridsize * 2, gridsize * 2, gridsize, gridsize, ts, ts); // Bottom-right
+        var ts = gridsize * 3;
+
+
+        // Corners (fixed)
+
+        // top-left
+        guiGraphics.blit(texture, x, y, 0, 0, gridsize, gridsize, ts, ts); // Top-left
+
+        // top-right
+        guiGraphics.blit(texture, x + w - gridsize, y, gridsize * 2, 0, gridsize, gridsize, ts, ts); // Top-right
+
+        // bottom left
+        guiGraphics.blit(texture, x, y + h - gridsize, 0, gridsize * 2, gridsize, gridsize, ts, ts); // Bottom-left
+
+        // bottom right
+        guiGraphics.blit(texture, x + w - gridsize, y + h - gridsize, gridsize * 2, gridsize * 2, gridsize, gridsize, ts, ts); // Bottom-right
+
 
         // Borders (stretchable)
-        guiGraphics.blit(texture, leftPos + gridsize, topPos, guiWidth - 2 * gridsize, gridsize, gridsize, 0, gridsize, gridsize, ts,
-                ts); // Top
-        guiGraphics.blit(texture, //
-                leftPos + gridsize, topPos + guiHeight - gridsize, // GXY
-                guiWidth - 2 * gridsize, gridsize,                        // GWH
-                gridsize, gridsize * 2,                            // TXY
-                gridsize, gridsize,                                      // TWH
-                ts, ts); // Bottom
-        guiGraphics.blit(texture,//
-                leftPos, topPos + gridsize,//
-                gridsize, guiHeight - 2 * gridsize,//
-                0, gridsize, //
-                gridsize, gridsize,//
-                ts, ts); // Left
-        guiGraphics.blit(texture,//
-                leftPos + guiWidth - gridsize, topPos + gridsize,//
-                gridsize, guiHeight - 2 * gridsize,//
-                gridsize * 2, gridsize,//
-                gridsize, gridsize, //
-                ts, ts); // Right
+
+        // Top edge
+        if (w > 2 * gridsize)
+            guiGraphics.blit(texture,
+                    x + gridsize,
+                    y,
+                    w - 2 * gridsize,
+                    gridsize,
+                    gridsize,
+                    0,
+                    gridsize,
+                    gridsize, ts,
+                    ts);
+
+        // Bottom
+        if (w > 2 * gridsize)
+            guiGraphics.blit(texture,     //
+                    x + gridsize,
+                    y + h - gridsize, // GXY
+                    w - 2 * gridsize,
+                    gridsize,             // GWH
+                    gridsize,
+                    gridsize * 2, // TXY
+                    gridsize,
+                    gridsize,             // TWH
+                    ts, ts);
+
+        // Left
+        if (h > 2 * gridsize)
+            guiGraphics.blit(texture,//
+                    x,
+                    y + gridsize,//
+                    gridsize,
+                    h - 2 * gridsize,//
+                    0,
+                    gridsize, //
+                    gridsize,
+                    gridsize,//
+                    ts, ts);
+
+        // Right
+        if (h > 2 * gridsize)
+            guiGraphics.blit(texture,//
+                    x + w - gridsize,
+                    y + gridsize,//
+                    gridsize,
+                    h - 2 * gridsize,//
+                    gridsize * 2,
+                    gridsize,//
+                    gridsize,
+                    gridsize, //
+                    ts, ts);
 
         // Center (stretchable)
-        guiGraphics.blit(texture,//
-                leftPos + gridsize, topPos + gridsize,//
-                guiWidth - 2 * gridsize, guiHeight - 2 * gridsize,//
-                gridsize, gridsize,//
-                gridsize, gridsize,//
-                ts, ts); // center
+        if (w > 2 * gridsize && h > 2 * gridsize)
+            guiGraphics.blit(texture,//
+                    x + gridsize, y + gridsize,//
+                    w - 2 * gridsize, h - 2 * gridsize,//
+                    gridsize, gridsize,//
+                    gridsize, gridsize,//
+                    ts, ts); // center
     }
 }

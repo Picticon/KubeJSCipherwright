@@ -10,15 +10,18 @@ import pictisoft.cipherwright.util.JsonHelpers;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class CipherParameter extends CipherGridObject
 {
     private String placeholder = "";
     private String label = "";
+    private String hint = "";
     private String defaultValue = "";
     private ArrayList<String> options = new ArrayList<>();
     private ArrayList<String> descriptions = new ArrayList<>();
+    private String display = "";
 
     public CipherParameter()
     {
@@ -32,27 +35,32 @@ public class CipherParameter extends CipherGridObject
         return type.equals("text")
                 || type.equals("number")
                 || type.equals("combo")
+                || type.equals("boolean")
                 ;
+    }
+
+    @Override
+    public int getHeight()
+    {
+        if (type.equals("combo")) return 16;
+        if (type.equals("boolean")) return 16;
+        if (type.equals("text")) return 13;
+        if (type.equals("number")) return 13;
+        return 16;
     }
 
     public void render(GuiGraphics gui, GUIElementRenderer guiRenderer)
     {
-        if (label != null && !label.isEmpty())
-        {
-            var font = Minecraft.getInstance().font;
-            var textwidth = font.width(this.label);
-            var x = this.getPosX() - textwidth - 4;
-            if (this.flags.contains("right"))
-            {
-                x = this.getPosX() + this.getWidth() + 4;
-            }
-            gui.drawString(font, this.label, x, this.getPosY() + 1, 0x404040, false);
-        }
+        render(gui, guiRenderer, getPosX(), getPosY(), getWidth());
+    }
+
+    public void render(GuiGraphics gui, GUIElementRenderer guiRenderer, int xxx, int yyy, int www)
+    {
     }
 
     public Component getLabel()
     {
-        return Component.translatableWithFallback(getPlaceholder(), getPlaceholder());
+        return Component.translatableWithFallback(this.label, this.label);
     }
 
     private String getPlaceholder()
@@ -68,7 +76,9 @@ public class CipherParameter extends CipherGridObject
         {
             if (input.has("placeholder")) cw.placeholder = input.get("placeholder").getAsString();
             if (input.has("label")) cw.label = input.get("label").getAsString();
+            if (input.has("hint")) cw.hint = input.get("hint").getAsString();
             if (input.has("default")) cw.defaultValue = input.get("default").getAsString();
+            if (input.has("display")) cw.display = input.get("display").getAsString();
             if (input.has("options")) cw.options = JsonHelpers.JsonArrayToStringArray(input.getAsJsonArray("options"));
             if (input.has("descriptions")) cw.descriptions = JsonHelpers.JsonArrayToStringArray(input.getAsJsonArray("descriptions"));
         }
@@ -77,11 +87,6 @@ public class CipherParameter extends CipherGridObject
     public String getDefaultValue()
     {
         return defaultValue;
-    }
-
-    public void setDefaultValue(String defaultValue)
-    {
-        this.defaultValue = defaultValue;
     }
 
     public String tryGet(JsonObject json)
@@ -93,6 +98,7 @@ public class CipherParameter extends CipherGridObject
             var df = new DecimalFormat("#.###");
             return df.format(node.number);
         }
+        if (node.isBool()) return node.bool ? "true" : "false";
         return "";
     }
 
@@ -100,8 +106,24 @@ public class CipherParameter extends CipherGridObject
     {
         return options;
     }
+
     public List<String> getComboDescriptions()
     {
         return descriptions;
+    }
+
+    public String getDisplay()
+    {
+        return display;
+    }
+
+    public String getFlags()
+    {
+        return flags == null ? "" : flags;
+    }
+
+    public Component getHint()
+    {
+        return Component.translatableWithFallback(this.hint, this.hint);
     }
 }

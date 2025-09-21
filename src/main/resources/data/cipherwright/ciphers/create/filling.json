@@ -1,19 +1,25 @@
 {
-  "type": "create:compacting",
-  "name": "Compacting",
+  "type": "create:filling",
+  "name": "Filling",
   "category": "Create",
   "inputs": [
     {
       "type": "ingredient",
       "gridx": 0,
-      "gridy": 0,
+      "gridy": 1,
       "single": true,
       "path": "ingredients",
-      "repeat": {
-        "shape": "array",
-        "rows": 3,
-        "cols": 3
-      },
+      "allowtag": true,
+      "allowfluid": false
+    },
+    {
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 2,
+      "single": true,
+      "path": "ingredients",
+      "allowtag": false,
+      "allowitem": false,
       "allowfluid": true
     }
   ],
@@ -21,45 +27,24 @@
     {
       "path": "results",
       "type": "itemstack",
-      "gridx": 5,
+      "gridx": 4,
       "gridy": 1,
       "repeat": {
         "shape": "array",
-        "rows": 2,
-        "cols": 2
+        "rows": 1,
+        "cols": 1
       },
-      "allowtag": false,
-      "allowfluid": true
+      "allowtag": false
     }
   ],
   "illustrations": [
     {
       "type": "left_arrow",
-      "gridx": 3.2,
+      "gridx": 2,
       "gridy": 1
     }
   ],
-  "parameters": [
-    {
-      "path": "heatRequirement",
-      "placeholder": "ticks",
-      "label": "Heat",
-      "type": "combo",
-      "options": [
-        "none",
-        "heated",
-        "superheated"
-      ],
-      "descriptions": [
-        "None",
-        "Heated",
-        "Super Heated"
-      ],
-      "gridx": 3,
-      "gridy": 4,
-      "gridw": 4
-    }
-  ],
+  "parameters": [],
   "templates": [
     {
       "name": "KubeJS Custom",
@@ -96,20 +81,7 @@
           "title": "Datapack",
           "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>"
-          ]
-        },
-        {
-          "title": "heating",
-          "condition": "parameter:heatRequirement:not:none",
-          "fragments": [
-            ",\"heatRequirement\":<<parameter:heatRequirement>>"
-          ]
-        },
-        {
-          "title": "closing",
-          "fragments": [
-            "}"
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
           ]
         }
       ]

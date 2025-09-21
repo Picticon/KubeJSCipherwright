@@ -129,12 +129,12 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
     }
 
     @Override
-    protected String encodePatternKey(Map<CWIngredient, String> map)
+    protected String encodePatternKey(Map<String, CWIngredient> map)
     {
         var arr = new ArrayList<String>();
         for (var kvp : map.entrySet())
         {
-            arr.add("\"" + kvp.getValue() + "\":\"" + jsify(kvp.getKey().toJson().toString()) + "\"}");
+            arr.add("\"" + kvp.getKey() + "\":\"" + jsify(kvp.getValue().toJson().toString()) + "\"}");
         }
         return "[" + String.join(",", arr) + "]";
     }

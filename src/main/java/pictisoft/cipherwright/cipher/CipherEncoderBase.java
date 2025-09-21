@@ -4,6 +4,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
+import pictisoft.cipherwright.util.Chatter;
 
 import java.util.*;
 
@@ -47,7 +48,7 @@ public abstract class CipherEncoderBase
         return r.encodeItemStackId(r.getItemstack(slot));
     }
 
-    public static String mapToPatternKey(String format, Map<CWIngredient, String> map, CipherTemplate.DataLoad data)
+    public static String mapToPatternKey(String format, Map<String, CWIngredient> map, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodePatternKey(map);
@@ -86,6 +87,10 @@ public abstract class CipherEncoderBase
         var replacement = "??";
         if (p != null)
         {
+            if (p.getType().equals("boolean"))
+            {
+                replacement = val.equals("true") ? "true" : "false";
+            }
             if (p.getType().equals("number"))
             {
                 try
@@ -129,7 +134,7 @@ public abstract class CipherEncoderBase
 
     protected abstract String encodePattern(String[] encoded);
 
-    protected abstract String encodePatternKey(Map<CWIngredient, String> map);
+    protected abstract String encodePatternKey(Map<String, CWIngredient> map);
 
     protected ItemStack getItemstack(CipherSlot slot)
     {

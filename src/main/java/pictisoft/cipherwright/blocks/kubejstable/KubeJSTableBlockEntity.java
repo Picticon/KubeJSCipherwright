@@ -45,22 +45,20 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
         EntityC2SCipherCommand.IHandleEntityC2SMessage,
         EntityToServerIntIntMessage.IToServerIntIntMessageHandlerWithPlayer
 {
-    public static final int RECIPE_TYPE_SCROLLBOX = 99;
-    public static final int RECIPE_CLEAR = 50;
-    public static final int PARAMETER_SYNC = 90;
-    public static final int ORIGINAL_RECIPE_CLEAR_ON_SERVER = 51;
+    public static final int WELL_PARAMETER_SYNC = 6;
     public static final int CIPHER_REMOVE_NBT = 7;
     public static final int CIPHER_ADJUSTMENT = 8;
     public static final int CIPHER_CHANGE_TO_TAG = 9;
-    public static final int CHANGE_COMMENT_PARAMETER = 199;
-    public static final int RUN_COMMAND = 100;
-    public static final int RUN_COMMAND_RELOAD = 0;
+    public static final int ORIGINAL_RECIPE_CLEAR_ON_SERVER = 10;
+    public static final int RECIPE_CLEAR = 50;
     public static final int SET_ITEM_FROM_JEI_DROP = 50;
     public static final int SET_FLUID_FROM_JEI_DROP = 51;
-    private static final int MAX_PARAMETERS = 20;
-    //    protected final ItemStackHandler itemHandler = createHandler();
-//    protected final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemHandler);
-    //private boolean _removeCheck; // the user wants to create the remove recipe fragment.
+    public static final int PARAMETER_SYNC = 90;
+    public static final int RECIPE_TYPE_SCROLLBOX = 99;
+    public static final int CHANGE_COMMENT_PARAMETER = 199;
+
+    public static final int RUN_COMMAND = 1000;
+    public static final int RUN_COMMAND_RELOAD = 0;
 
     private ArrayList<CipherSlot> _slots = new ArrayList<>();
 
@@ -264,39 +262,109 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     {
         return """
                 {
-                  "type": "botania:runic_altar",
+                  "type": "create:deploying",
                   "ingredients": [
                     {
-                      "tag": "minecraft:logs_that_burn"
+                      "item": "minecraft:exposed_copper"
                     },
                     {
-                      "item": "minecraft:cobblestone"
-                    },
-                    {
-                      "item": "minecraft:stick"
-                    },
-                    {
-                      "item": "minecraft:egg"
+                      "tag": "minecraft:axes"
                     }
                   ],
-                  "mana": 12000,
-                  "output": {
-                    "item": "minecraft:cooked_beef"
-                  }
+                  "keepHeldItem": true,
+                  "results": [
+                    {
+                      "item": "minecraft:copper_block"
+                    }
+                  ]
                 }
                 """;
+//        return """
+//                {
+//                  "type": "botania:runic_altar",
+//                  "ingredients": [
+//                    {
+//                      "tag": "minecraft:logs_that_burn"
+//                    },
+//                    {
+//                      "item": "minecraft:cobblestone"
+//                    },
+//                    {
+//                      "item": "minecraft:stick"
+//                    },
+//                    {
+//                      "item": "minecraft:egg"
+//                    }
+//                  ],
+//                  "mana": 12000,
+//                  "output": {
+//                    "item": "minecraft:cooked_beef"
+//                  }
+//                }
+//                """;
     }
 
     String json2()
     {
         return """
-                {'type':'minecraft:crafting_shaped','key':{"A":{"item":"minecraft:diamond_sword","nbt":{"Damage":500}}},'pattern':["AAA","AAA","AAA"],'result':{"item":"minecraft:crimson_fence","count":3}}
+                {
+                  "type": "create:crushing",
+                  "ingredients": [
+                    {
+                      "item": "minecraft:amethyst_block"
+                    }
+                  ],
+                  "processingTime": 150,
+                  "results": [
+                    {
+                      "chance": 0.75,
+                      "count": 3,
+                      "item": "minecraft:amethyst_shard"
+                    },
+                    {
+                      "chance": 0.5,
+                      "item": "minecraft:amethyst_shard"
+                    },
+                    {
+                      "chance": 0.05,
+                      "item": "minecraft:diamond"
+                    }
+                  ]
+                }
                 """;
     }
 
     String json3()
     {
-        return """
+        var aa= """
+                {
+                  "type": "create:mechanical_crafting",
+                  "acceptMirrored": false,
+                  "key": {
+                    "A": {
+                      "item": "minecraft:cobblestone"
+                    },
+                    "P": {
+                      "tag": "minecraft:planks"
+                    },
+                    "S": {
+                      "tag": "forge:stone"
+                    }
+                  },
+                  "pattern": [
+                    " AAA ",
+                    "AAPAA",
+                    "APSPA",
+                    "AAPAA",
+                    " AAA "
+                  ],
+                  "result": {
+                    "count": 2,
+                    "item": "minecraft:blast_furnace"
+                  }
+                }
+                """;
+        var t=  """
                 {
                    "type": "create:compacting",
                    "ingredients": [
@@ -322,6 +390,65 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                  }
                 
                 """;
+        var tt= """
+                {
+                  "type": "create:emptying",
+                  "ingredients": [
+                    {
+                      "item": "minecraft:honey_bottle"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "item": "minecraft:glass_bottle"
+                    },
+                    {
+                      "amount": 250,
+                      "fluid": "cipherwright:dead_water_source"
+                    }
+                  ]
+                }
+                """;
+        var ttt= """
+                {
+                  "type": "create:filling",
+                  "ingredients": [
+                    {
+                      "item": "minecraft:dirt"
+                    },
+                    {
+                      "amount": 500,
+                      "fluid": "minecraft:water",
+                      "nbt": {}
+                    }
+                  ],
+                  "results": [
+                    {
+                      "item": "minecraft:grass_block"
+                    }
+                  ]
+                }"""  ;
+        var tttt= """
+                {
+                  "type": "create:haunting",
+                  "ingredients": [
+                    {
+                      "tag": "forge:gems/lapis"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "chance": 0.75,
+                      "item": "minecraft:prismarine_shard"
+                    },
+                    {
+                      "chance": 0.125,
+                      "item": "minecraft:prismarine_crystals"
+                    }
+                  ]
+                }
+                """;
+        return aa;
 //        return """
 //                {
 //                  "type": "botania:elven_trade",
@@ -376,7 +503,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
         }
         if (controlId == RECIPE_CLEAR)
         {
-            if (value == 91)
+            if (value == 91) // test buttons
             {
                 handleRecipe(json1(), null);
             } else if (value == 92)
@@ -387,7 +514,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                 handleRecipe(json3(), null);
             } else
             {
-
+                // actually clear
                 Cipher.clearSlots(this.getCipherSlots());
             }
             updateBlock();
@@ -464,6 +591,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                     var cipher = CipherJsonLoader.getCipherByRecipeId(possibletype);
                     if (!cipher.getInputs().isEmpty())
                     {
+                        Cipher.clearSlots(this.getCipherSlots());
                         setRecipeTypeAndRebuildCipherSlots(cipher.getRecipeTypeId());
                         setOriginalRecipe(recipeId);
                         getCipher().handleRecipe(json, this.getCipherSlots(), _parameterValues); // loads parameter values
@@ -594,6 +722,10 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                 {
                     switch (command)
                     {
+                        case WELL_PARAMETER_SYNC:
+                            r.setWellParameter(string);
+                            updateBlock();
+                            break;
                         case CIPHER_ADJUSTMENT:
                             r.adjustCount(Integer.parseInt(string));
                             updateBlock();

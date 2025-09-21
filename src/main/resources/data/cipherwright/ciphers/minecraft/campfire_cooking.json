@@ -88,7 +88,7 @@
           "title": "Delete",
           "condition": "remove",
           "fragments": [
-            "event.remove({id:'<<oldid>>'});"
+            "event.remove({id:\"<<oldid>>\"});"
           ]
         }
       ]
@@ -102,7 +102,7 @@
           "title": "JSON",
           "flags": "prettyjson",
           "fragments": [
-            "{'type':'<<type>>','cookingtime':<<parameter:cookingtime>>,'experience':<<parameter:experience>>,'ingredient':<<ingredient:ingredient>>,'result':<<itemstack:result>>}"
+            "{\"type\":\"<<type>>\",\"cookingtime\":<<parameter:cookingtime>>,\"experience\":<<parameter:experience>>,\"ingredient\":<<ingredient:ingredient>>,\"result\":<<itemstack:result>>}"
           ]
         }
       ]

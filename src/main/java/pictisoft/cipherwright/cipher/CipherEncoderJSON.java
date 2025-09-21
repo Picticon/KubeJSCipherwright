@@ -6,9 +6,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
 import pictisoft.cipherwright.util.RecipeEncoder;
+import pictisoft.cipherwright.util.StringConversions;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class CipherEncoderJSON extends CipherEncoderBase
 {
@@ -28,15 +30,38 @@ public class CipherEncoderJSON extends CipherEncoderBase
             {
                 var itemstack = slot.getItemStack();
                 if (!itemstack.isEmpty())
-                    json.add(ItemAndIngredientHelpers.itemStackToJson(itemstack));
+                {
+                    json.add(appendMembers(slot, ItemAndIngredientHelpers.itemStackToJson(itemstack)));
+                }
             } else if (slot.getMode() == CipherSlot.SlotMode.FLUID)
             {
                 var fluidstack = slot.getFluid();
                 if (!fluidstack.isEmpty())
-                    json.add(ItemAndIngredientHelpers.fluidStackToJson(fluidstack));
+                {
+                    json.add(appendMembers(slot, ItemAndIngredientHelpers.fluidStackToJson(fluidstack)));
+                }
             }
         }
         return json.toString();
+    }
+
+    private JsonObject appendMembers(CipherSlot slot, JsonObject jchild)
+    {
+        if (slot.getCipherobject() instanceof CipherWell well)
+        {
+            for (var para : well.getWellParameters())
+            {
+                var val = slot.getWellParameter(para);
+                if (val == null || val.isBlank()) continue;
+                if (Objects.equals(para.getType(), "text") || Objects.equals(para.getType(), "combo"))
+                    jchild.addProperty(slot.getWellMember(para), val);
+                if (Objects.equals(para.getType(), "number"))
+                    jchild.addProperty(slot.getWellMember(para), StringConversions.getAsFloat(val));
+                if (Objects.equals(para.getType(), "boolean"))
+                    jchild.addProperty(slot.getWellMember(para), val.equals("true"));
+            }
+        }
+        return jchild;
     }
 
     @Override
@@ -61,7 +86,7 @@ public class CipherEncoderJSON extends CipherEncoderBase
     protected String encodeIngredient(CipherSlot slot)
     {
         var json = new JsonArray();
-        encodetojson(slot, json);
+        encodeToJSON(slot, json);
         return json.get(0).toString();
     }
 
@@ -71,25 +96,31 @@ public class CipherEncoderJSON extends CipherEncoderBase
         var json = new JsonArray();
         for (var slot : slots)
         {
-            encodetojson(slot, json);
+            encodeToJSON(slot, json);
         }
         return json.toString();
     }
 
-    private static void encodetojson(CipherSlot slot, JsonArray json)
+    private void encodeToJSON(CipherSlot sslot, JsonArray json)
     {
-        if (slot.getMode() == CipherSlot.SlotMode.ITEM)
+        JsonObject jchild = null;
+        if (sslot.getMode() == CipherSlot.SlotMode.ITEM)
         {
-            if (slot.getItemStack().isEmpty()) return;
-            json.add(ItemAndIngredientHelpers.ingredientWithNBTToJson(Ingredient.of(slot.getItemStack())));
+            if (sslot.getItemStack().isEmpty()) return;
+            jchild = ItemAndIngredientHelpers.ingredientWithNBTToJson(Ingredient.of(sslot.getItemStack()));
         }
-        if (slot.getMode() == CipherSlot.SlotMode.TAG)
+        if (sslot.getMode() == CipherSlot.SlotMode.TAG)
         {
-            json.add(RecipeEncoder.ingredientFromTag(slot.getTag())); // no counts...
+            jchild = RecipeEncoder.ingredientFromTag(sslot.getTag());
         }
-        if (slot.getMode() == CipherSlot.SlotMode.FLUID)
+        if (sslot.getMode() == CipherSlot.SlotMode.FLUID)
         {
-            json.add(ItemAndIngredientHelpers.fluidStackToJson(slot.getFluid())); // no counts...
+            jchild = ItemAndIngredientHelpers.fluidStackToJson(sslot.getFluid());
+        }
+        if (jchild != null)
+        {
+            jchild = appendMembers(sslot, jchild);
+            json.add(jchild);
         }
     }
 
@@ -105,12 +136,12 @@ public class CipherEncoderJSON extends CipherEncoderBase
     }
 
     @Override
-    protected String encodePatternKey(Map<CWIngredient, String> map)
+    protected String encodePatternKey(Map<String, CWIngredient> map)
     {
         var json = new JsonObject();
         for (var r : map.entrySet())
         {
-            json.add(r.getValue(), r.getKey().toJson());
+            json.add(r.getKey(), r.getValue().toJson());
         }
         return json.toString();
     }

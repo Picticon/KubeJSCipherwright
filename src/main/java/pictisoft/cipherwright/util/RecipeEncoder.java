@@ -1,26 +1,15 @@
 package pictisoft.cipherwright.util;
 
 import com.google.gson.*;
-import com.mojang.serialization.JsonOps;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.*;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 import pictisoft.cipherwright.cipher.CWIngredient;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RecipeEncoder
 {
-    private final Map<CWIngredient, String> ingredientMap;
+    private final Map<String, CWIngredient> ingredientMap;
     private final String[] pattern;
 
     public RecipeEncoder(CWIngredient[][] ingredientGrid)
@@ -35,7 +24,7 @@ public class RecipeEncoder
         this.pattern = encodeRecipe(shrink ? trim(ingredientGrid) : ingredientGrid);
     }
 
-    public static JsonElement ingredientFromTag(TagKey<Item> tagitem) // no counts...
+    public static JsonObject ingredientFromTag(TagKey<Item> tagitem) // no counts...
     {
         JsonObject result = new JsonObject();
         result.addProperty("tag", tagitem.location().toString());
@@ -49,7 +38,7 @@ public class RecipeEncoder
     private String[] encodeRecipe(CWIngredient[][] grid)
     {
         // Build map of unique ingredients to characters
-        Set<CWIngredient> uniqueIngredients = new HashSet<>();
+        ArrayList<CWIngredient> uniqueIngredients = new ArrayList<>();
 
         for (CWIngredient[] row : grid)
         {
@@ -84,9 +73,9 @@ public class RecipeEncoder
                     var added = false;
                     for (var r : ingredientMap.entrySet())
                     {
-                        if (r.getKey().isEqual(ingredient))
+                        if (r.getValue().isEqual(ingredient))
                         {
-                            rowBuilder.append(r.getValue());
+                            rowBuilder.append(r.getKey());
                             added = true;
                             break;
                         }
@@ -100,7 +89,7 @@ public class RecipeEncoder
         return result;
     }
 
-    private CWIngredient findIngredient(Set<CWIngredient> uniqueIngredients, CWIngredient ingredient)
+    private CWIngredient findIngredient(List<CWIngredient> uniqueIngredients, CWIngredient ingredient)
     {
         for (var alreadyAdded : uniqueIngredients)
         {
@@ -110,24 +99,30 @@ public class RecipeEncoder
         return null;
     }
 
-    private void assignCharacters(Set<CWIngredient> ingredients)
+    // pass in an unique list of ingredients
+    private void assignCharacters(List<CWIngredient> ingredients)
     {
+        ingredients.sort(Comparator.comparing(CWIngredient::getUniqueIdentifier)); // need to sort on something, or the indexes get messed up??
         // Use common starting letters for ingredients, then move to other characters
-        String availableChars = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
-        int charIndex = 0;
+        String availableChars = "#ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@$%^&*();:<>.,~abcdefghijklmnopqrstuvwxyz";
+
+        List<Character> set = new ArrayList<>();
+        for (var c : availableChars.toCharArray())
+        {
+            set.add(c);
+        }
 
         for (CWIngredient ingredient : ingredients)
         {
-            if (charIndex < availableChars.length())
+            var character = ingredient.getCharacter();
+            if (set.contains(character))
             {
-                String character = String.valueOf(availableChars.charAt(charIndex));
-                ingredientMap.put(ingredient, character);
-                charIndex++;
+                set.remove(character);
+                ingredientMap.put(character.toString(), ingredient);
             } else
             {
-                // Fallback if we somehow have more than 62 unique ingredients
-                ingredientMap.put(ingredient, String.valueOf(charIndex));
-                charIndex++;
+                character = set.remove(0);
+                ingredientMap.put(character.toString(), ingredient);
             }
         }
     }
@@ -137,7 +132,7 @@ public class RecipeEncoder
      *
      * @return Map of Ingredient to String character
      */
-    public Map<CWIngredient, String> getIngredientMap()
+    public Map<String, CWIngredient> getIngredientMap()
     {
         return new HashMap<>(ingredientMap);
     }
@@ -152,16 +147,21 @@ public class RecipeEncoder
         return pattern.clone();
     }
 
-    /**
-     * Gets a specific ingredient's character representation
-     *
-     * @param ingredient The ingredient to look up
-     * @return The character representation, or null if not found
-     */
-    public String getCharacterForIngredient(Ingredient ingredient)
-    {
-        return ingredientMap.get(ingredient);
-    }
+//    /**
+//     * Gets a specific ingredient's character representation
+//     *
+//     * @param ingredient The ingredient to look up
+//     * @return The character representation, or null if not found
+//     */
+//    public String getCharacterForIngredient(Ingredient ingredient)
+//    {
+//        for (var r : ingredientMap.entrySet())
+//        {
+//            if (r.getValue().equals(ingredient))
+//                return r.getKey();
+//        }
+//        return "?";
+//    }
 
     public static CWIngredient[][] trim(CWIngredient[][] grid)
     {

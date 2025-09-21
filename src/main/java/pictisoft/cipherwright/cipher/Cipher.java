@@ -305,8 +305,7 @@ public class Cipher
     {
         for (var slot : slots)
         {
-            slot.setItem(ItemStack.EMPTY);
-
+            slot.clear();
         }
     }
 
@@ -336,7 +335,7 @@ public class Cipher
     }
 
 
-    public Map<CWIngredient, String> getShapedMap(String path, ArrayList<CipherSlot> slots)
+    public Map<String, CWIngredient> getShapedMap(String path, ArrayList<CipherSlot> slots)
     {
         var re = getEncoder(path, slots);
         return re.getIngredientMap();
@@ -369,6 +368,37 @@ public class Cipher
             }
         }
         return new RecipeEncoder(array, true);
+    }
+
+//    public int getWellParameterMaximumHeight()
+//    {
+//        var ret = 0;
+//        for (var r : getAll())
+//        {
+//            if (r instanceof CipherWell well)
+//            {
+//                var inner = 0;
+//                for (var i : well.getWellParameters())
+//                {
+//                    if (inner > 0) inner += 2; // spacing
+//                    inner += i.height;
+//                }
+//                ret = Math.max(ret, inner);
+//            }
+//        }
+//        return ret;
+//    }
+    public int getWellParameterMaximumCount()
+    {
+        var ret = 0;
+        for (var r : getAll())
+        {
+            if (r instanceof CipherWell well)
+            {
+                ret = Math.max(ret, well.getWellParameters().size());
+            }
+        }
+        return ret;
     }
 
 

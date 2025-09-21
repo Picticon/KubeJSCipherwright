@@ -28,40 +28,41 @@ public class CipherIngredientHandler implements IGhostIngredientHandler<KubeJSTa
         for (CipherSlot slot : screen.getMenu().getBlockEntity().getCipherSlots())
         {
             if (ingredient.getIngredient() instanceof FluidStack && !slot.canBeFluid()) continue;
-            {
-                targets.add(new Target<>()
-                {
-                    @Override
-                    public Rect2i getArea()
-                    {
-                        return new Rect2i(
-                                screen.getGuiLeft() + screen.getContainer().getInset().getX() + slot.getX(),
-                                screen.getGuiTop() + screen.getContainer().getInset().getY() + slot.getY(),
-                                16, 16);
-                    }
+            if (ingredient.getIngredient() instanceof ItemStack && !slot.canBeItem()) continue;
 
-                    @Override
-                    public void accept(I ingredient)
+            targets.add(new Target<>()
+            {
+                @Override
+                public Rect2i getArea()
+                {
+                    return new Rect2i(
+                            screen.getGuiLeft() + screen.getContainer().getInset().getX() + slot.getX(),
+                            screen.getGuiTop() + screen.getContainer().getInset().getY() + slot.getY(),
+                            16, 16);
+                }
+
+                @Override
+                public void accept(I ingredient)
+                {
+                    var be = screen.getMenu().getBlockEntity();
+                    if (ingredient instanceof ItemStack itemStack)
                     {
-                        var be = screen.getMenu().getBlockEntity();
-                        if (ingredient instanceof ItemStack itemStack)
-                        {
-                            MessageRegistry.sendToServer(
-                                    new EntityToServerIntStringStringMessage(be.getLevel(), be.getBlockPos(), KubeJSTableBlockEntity.SET_ITEM_FROM_JEI_DROP,
-                                            slot.getSerialKey(),
-                                            ItemAndIngredientHelpers.itemStackToJson(itemStack).toString()));
-                            //slot.setItem(itemStack);
-                        } else if (ingredient instanceof FluidStack fluidStack)
-                        {
-                            MessageRegistry.sendToServer(
-                                    new EntityToServerIntStringStringMessage(be.getLevel(), be.getBlockPos(), KubeJSTableBlockEntity.SET_FLUID_FROM_JEI_DROP,
-                                            slot.getSerialKey(),
-                                            ItemAndIngredientHelpers.fluidStackToJson(fluidStack).toString()));
-                            //slot.setFluid(fluidStack);
-                        }
+                        MessageRegistry.sendToServer(
+                                new EntityToServerIntStringStringMessage(be.getLevel(), be.getBlockPos(), KubeJSTableBlockEntity.SET_ITEM_FROM_JEI_DROP,
+                                        slot.getSerialKey(),
+                                        ItemAndIngredientHelpers.itemStackToJson(itemStack).toString()));
+                        //slot.setItem(itemStack);
+                    } else if (ingredient instanceof FluidStack fluidStack)
+                    {
+                        MessageRegistry.sendToServer(
+                                new EntityToServerIntStringStringMessage(be.getLevel(), be.getBlockPos(), KubeJSTableBlockEntity.SET_FLUID_FROM_JEI_DROP,
+                                        slot.getSerialKey(),
+                                        ItemAndIngredientHelpers.fluidStackToJson(fluidStack).toString()));
+                        //slot.setFluid(fluidStack);
                     }
-                });
-            }
+                }
+            });
+
         }
         return targets;
     }

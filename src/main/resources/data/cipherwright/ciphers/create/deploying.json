@@ -1,63 +1,58 @@
 {
-  "type": "create:compacting",
-  "name": "Compacting",
+  "type": "create:deploying",
+  "name": "Deploying",
   "category": "Create",
   "inputs": [
     {
       "type": "ingredient",
-      "gridx": 0,
-      "gridy": 0,
       "single": true,
       "path": "ingredients",
       "repeat": {
-        "shape": "array",
-        "rows": 3,
-        "cols": 3
-      },
-      "allowfluid": true
+        "shape": "absolute",
+        "gridcoordinates": [
+          0,
+          3,
+          0,
+          0
+        ]
+      }
     }
   ],
   "outputs": [
     {
       "path": "results",
       "type": "itemstack",
-      "gridx": 5,
-      "gridy": 1,
+      "gridx": 3,
+      "gridy": 3,
       "repeat": {
         "shape": "array",
-        "rows": 2,
-        "cols": 2
+        "rows": 1,
+        "cols": 1
       },
-      "allowtag": false,
-      "allowfluid": true
+      "allowtag": false
     }
   ],
   "illustrations": [
     {
       "type": "left_arrow",
-      "gridx": 3.2,
-      "gridy": 1
+      "gridx": 1.4,
+      "gridy": 3
+    },
+    {
+      "type": "down_arrow",
+      "gridx": 0,
+      "gridy": 1.5
     }
+
   ],
   "parameters": [
     {
-      "path": "heatRequirement",
-      "placeholder": "ticks",
-      "label": "Heat",
-      "type": "combo",
-      "options": [
-        "none",
-        "heated",
-        "superheated"
-      ],
-      "descriptions": [
-        "None",
-        "Heated",
-        "Super Heated"
-      ],
-      "gridx": 3,
-      "gridy": 4,
-      "gridw": 4
+      "path": "keepHeldItem",
+      "type": "boolean",
+      "label": "Keep Held Item?",
+      "flags": "right",
+      "gridx": 1,
+      "gridy": 0
     }
   ],
   "templates": [
@@ -101,9 +96,9 @@
         },
         {
           "title": "heating",
-          "condition": "parameter:heatRequirement:not:none",
+          "condition": "parameter:keepHeldItem:equals:true",
           "fragments": [
-            ",\"heatRequirement\":<<parameter:heatRequirement>>"
+            ",\"keepHeldItem\":<<parameter:keepHeldItem>>"
           ]
         },
         {

@@ -1,7 +1,7 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "name": "Shaped 3x3",
-  "category": "Minecraft",
+  "type": "create:mechanical_crafting",
+  "name": "Mechanical Crafting",
+  "category": "Create",
   "inputs": [
     {
       "path": "pattern",
@@ -11,8 +11,8 @@
       "gridy": 0,
       "repeat": {
         "shape": "array",
-        "rows": 3,
-        "cols": 3
+        "rows": 9,
+        "cols": 9
       },
       "single": true
     }
@@ -21,26 +21,28 @@
     {
       "path": "result",
       "type": "itemstack",
-      "gridx": 5,
-      "gridy": 1,
+      "gridx": 10,
+      "gridy": 4,
       "large": true,
       "allowtag": false
     }
   ],
   "illustrations": [
     {
-      "type": "left_arrow",
-      "gridx": 3.2,
-      "gridy": 1
-    },
-    {
-      "type": "item",
-      "item": "minecraft:crafting_table",
-      "gridx": 7,
-      "gridy": 1
+      "type": "down_arrow",
+      "gridx": 10,
+      "gridy": 2.5
     }
   ],
   "parameters": [
+    {
+      "path": "acceptMirrored",
+      "type": "boolean",
+      "label": "Accept Mirrored?",
+      "flags": "right",
+      "gridx": 0,
+      "gridy": 9.1
+    }
   ],
   "templates": [
     {
@@ -53,7 +55,8 @@
           "fragments": [
             "// <<description:result>>"
           ]
-        },{
+        },
+        {
           "title": "Create",
           "fragments": [
             "event.shaped(<<itemstack:result>>, <<pattern:pattern>>, <<key:pattern>>);"
@@ -75,9 +78,21 @@
       "snippets": [
         {
           "title": "JSON",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"key\":<<key:pattern>>,\"pattern\":<<pattern:pattern>>,\"result\":<<itemstack:result>>}"
+            "{\"type\":\"<<type>>\""
+          ]
+        },
+        {
+          "title": "acceptMirrored",
+          "condition": "parameter:acceptMirrored:not:false",
+          "fragments": [
+            ",\"acceptMirrored\":<<parameter:acceptMirrored>>"
+          ]
+        },
+        {
+          "title": "closing",
+          "fragments": [
+            ",\"key\":<<key:pattern>>,\"pattern\":<<pattern:pattern>>,\"result\":<<itemstack:result>>}"
           ]
         }
       ]

@@ -7,6 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pictisoft.cipherwright.util.Chatter;
+import pictisoft.cipherwright.util.JsonHelpers;
 
 import java.io.IOException;
 import java.util.*;
@@ -92,6 +94,10 @@ public class CipherTemplate extends CipherGridObject
             var string = buildSnippet(data, tt.title);
             if (!ret.isEmpty() && format.equals("kubejs")) ret.append("\r\n");
             ret.append(string);
+        }
+        if (flags.contains("prettyjson"))
+        {
+            return  prettyJson(ret.toString());
         }
         return ret.toString();
     }
@@ -214,7 +220,6 @@ public class CipherTemplate extends CipherGridObject
             ret.append(result);
         }
         if (flags.contains("prettyjson"))
-
         {
             return prettyJson(ret.toString());
         }

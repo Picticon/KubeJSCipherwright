@@ -1,63 +1,57 @@
 {
-  "type": "create:compacting",
-  "name": "Compacting",
+  "type": "create:haunting",
+  "name": "Haunting",
   "category": "Create",
   "inputs": [
     {
-      "type": "ingredient",
-      "gridx": 0,
+      "type": "ingredients",
+      "gridx": 3,
       "gridy": 0,
       "single": true,
       "path": "ingredients",
-      "repeat": {
-        "shape": "array",
-        "rows": 3,
-        "cols": 3
-      },
-      "allowfluid": true
+      "index": 0
     }
   ],
   "outputs": [
     {
       "path": "results",
       "type": "itemstack",
-      "gridx": 5,
-      "gridy": 1,
+      "gridx": 2,
+      "gridy": 2,
       "repeat": {
         "shape": "array",
-        "rows": 2,
-        "cols": 2
+        "rows": 3,
+        "cols": 3
       },
-      "allowtag": false,
-      "allowfluid": true
+      "members": [
+        {
+          "path": "chance",
+          "type": "number",
+          "label": "Chance %",
+          "flags": "right",
+          "display": "percent top-left"
+        }
+      ],
+      "allowtag": false
     }
   ],
   "illustrations": [
     {
-      "type": "left_arrow",
-      "gridx": 3.2,
-      "gridy": 1
+      "type": "down_arrow",
+      "gridx": 3,
+      "gridy": 0.5,
+      "scale": 0.5
     }
   ],
   "parameters": [
     {
-      "path": "heatRequirement",
+      "path": "processingTime",
       "placeholder": "ticks",
-      "label": "Heat",
-      "type": "combo",
-      "options": [
-        "none",
-        "heated",
-        "superheated"
-      ],
-      "descriptions": [
-        "None",
-        "Heated",
-        "Super Heated"
-      ],
-      "gridx": 3,
-      "gridy": 4,
-      "gridw": 4
+      "label": "Proc. Time",
+      "type": "number",
+      "gridx": 4,
+      "gridy": 5.5,
+      "gridw": 3
     }
   ],
   "templates": [
@@ -97,13 +91,6 @@
           "flags": "prettyjson",
           "fragments": [
             "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>"
-          ]
-        },
-        {
-          "title": "heating",
-          "condition": "parameter:heatRequirement:not:none",
-          "fragments": [
-            ",\"heatRequirement\":<<parameter:heatRequirement>>"
           ]
         },
         {

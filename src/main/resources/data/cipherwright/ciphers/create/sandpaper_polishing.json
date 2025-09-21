@@ -1,63 +1,35 @@
 {
-  "type": "create:compacting",
-  "name": "Compacting",
+  "type": "create:sandpaper_polishing",
+  "name": "Sandpaper Polishing",
   "category": "Create",
   "inputs": [
     {
       "type": "ingredient",
-      "gridx": 0,
-      "gridy": 0,
       "single": true,
       "path": "ingredients",
-      "repeat": {
-        "shape": "array",
-        "rows": 3,
-        "cols": 3
-      },
-      "allowfluid": true
+      "index": 0,
+      "allowfluids": false
     }
   ],
   "outputs": [
     {
       "path": "results",
       "type": "itemstack",
-      "gridx": 5,
-      "gridy": 1,
-      "repeat": {
-        "shape": "array",
-        "rows": 2,
-        "cols": 2
-      },
       "allowtag": false,
-      "allowfluid": true
+      "allowfluids": false,
+      "index": 0
     }
   ],
   "illustrations": [
     {
       "type": "left_arrow",
-      "gridx": 3.2,
-      "gridy": 1
-    }
-  ],
-  "parameters": [
+      "gridx": 1.4,
+      "gridy": 3
+    },
     {
-      "path": "heatRequirement",
-      "placeholder": "ticks",
-      "label": "Heat",
-      "type": "combo",
-      "options": [
-        "none",
-        "heated",
-        "superheated"
-      ],
-      "descriptions": [
-        "None",
-        "Heated",
-        "Super Heated"
-      ],
-      "gridx": 3,
-      "gridy": 4,
-      "gridw": 4
+      "type": "down_arrow",
+      "gridx": 0,
+      "gridy": 1.5
     }
   ],
   "templates": [
@@ -101,9 +73,9 @@
         },
         {
           "title": "heating",
-          "condition": "parameter:heatRequirement:not:none",
+          "condition": "parameter:keepHeldItem:equals:true",
           "fragments": [
-            ",\"heatRequirement\":<<parameter:heatRequirement>>"
+            ",\"keepHeldItem\":<<parameter:keepHeldItem>>"
           ]
         },
         {
