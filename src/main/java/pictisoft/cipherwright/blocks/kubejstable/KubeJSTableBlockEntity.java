@@ -306,7 +306,8 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
 
     String json2()
     {
-        return """
+        var sample1=
+        """
                 {
                   "type": "create:crushing",
                   "ingredients": [
@@ -332,6 +333,38 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                   ]
                 }
                 """;
+        var sample2= """
+                {
+                  "type": "create:deploying",
+                  "ingredients": [
+                    {
+                      "item": "minecraft:stick"
+                    },
+                    {
+                      "tag": "minecraft:planks"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "item": "minecraft:furnace"
+                    }
+                  ]
+                }""";
+        var sample3= """
+                {
+                  "type": "create:sandpaper_polishing",
+                  "ingredients": [
+                    {
+                      "item": "minecraft:redstone"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "item": "minecraft:diamond"
+                    }
+                  ]
+                }""";
+        return sample3;
     }
 
     String json3()

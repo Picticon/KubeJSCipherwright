@@ -1,4 +1,4 @@
-package pictisoft.cipherwright.util;
+package pictisoft.cipherwright.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -6,8 +6,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import pictisoft.cipherwright.CipherWrightMod;
+import pictisoft.cipherwright.util.Slice9;
 
 import java.util.function.Consumer;
 

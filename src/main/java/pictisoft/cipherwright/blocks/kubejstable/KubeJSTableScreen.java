@@ -1,10 +1,12 @@
 package pictisoft.cipherwright.blocks.kubejstable;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.core.BlockPos;
@@ -24,6 +26,8 @@ import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import pictisoft.cipherwright.CipherWrightMod;
 import pictisoft.cipherwright.cipher.*;
+import pictisoft.cipherwright.gui.*;
+import pictisoft.cipherwright.integration.jei.JEIPlugin;
 import pictisoft.cipherwright.network.*;
 import pictisoft.cipherwright.util.*;
 
@@ -38,6 +42,12 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private static final int PAGE_ITEM_EDIT = 0;
     private static final int PAGE_RECIPES = 1;
     private static final int PAGE_CLIPBOARD = 2;
+    private static final int GUI_BUTTON_W = 13;
+    private static final int GUI_BUTTON_H = 13;
+    private static final int GUI_CLEAR_X = 13;
+    private static final int GUI_CLEAR_Y = 0;
+    private static final int GUI_COPY_X = 26;
+    private static final int GUI_COPY_Y = 0;
     private Rect2i workArea;
     private Rect2i tabArea;
     private CipherSlotProxy slotSelectedForTag = null;
@@ -60,13 +70,14 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private ImageButton btnClearScreen;
     private float _atTick;
     private static final ResourceLocation GUI_BITMAP = new ResourceLocation(CipherWrightMod.MODID, "textures/gui/cipherwright_gui.png");
-    private static final int GUI_BITMAP_W = 32;
-    private static final int GUI_BITMAP_H = 32;
+    private static final int GUI_BITMAP_W = 64;
+    private static final int GUI_BITMAP_H = 64;
     private boolean _dontFireControlUpdates;
     private final ArrayList<Button> _templateButtons = new ArrayList<>();
     private final ArrayList<CipherSlotProxy> _dragslots = new ArrayList<>();
     private int _selectedTab;
     private Button btnClearOriginalRecipe;
+    private Button btnCopyOriginalRecipe;
     private final int RIGHT_PANEL_WIDTH = 170;
     private final int TAB_BUTTON_WIDTH = RIGHT_PANEL_WIDTH / 3;
     private FakeTabButton tabItemEdit;
@@ -331,9 +342,9 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         gui.pose().popPose();
 
         // render original recipe id
-        if (btnClearOriginalRecipe != null)
+        if (btnClearOriginalRecipe != null && children().contains(btnClearOriginalRecipe))
         {
-            if (btnClearOriginalRecipe.visible && container.getBlockEntity().getOriginalRecipeID() != null)
+            if (container.getBlockEntity().getOriginalRecipeID() != null)
             {
                 gui.pose().pushPose();
                 var leftedge = btnClearOriginalRecipe.getX() - 4;
@@ -348,9 +359,12 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 //btnClearOriginalRecipe.visible = true;
                 gui.disableScissor();
                 gui.pose().popPose();
+                btnClearOriginalRecipe.visible = true;
+                btnCopyOriginalRecipe.visible = true;
             } else
             {
                 btnClearOriginalRecipe.visible = false;
+                btnCopyOriginalRecipe.visible = false;
             }
         }
 
@@ -441,16 +455,6 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) // MOUSEPIPE
     {
-//        if (scrollCategory.mouseClicked(mouseX,mouseY,button))
-//        {
-//            Chatter.chat("scrollCategory");
-//            return true;
-//        }
-//        if (scrollChildren.mouseClicked(mouseX,mouseY,button))
-//        {
-//            Chatter.chat("scrollChildren");
-//            return true;
-//        }
         Slot hoveredSlot = getSlotUnderMouse();
         if (hoveredSlot instanceof CipherSlotProxy proxy)
         {
@@ -459,7 +463,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 _dragslots.clear();
                 _dragslots.add(proxy);
                 clearSelectedSlot();
-                return true;
+                return (super.mouseClicked(mouseX, mouseY, button));
             }
             if (button == 2)
             {
@@ -499,9 +503,9 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             _dragslots.add(proxy);
         }
         if (this.children().contains(scrollChildren) && scrollChildren.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
-        if (this.children().contains(scrollCategory) &&scrollCategory.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
-        if (this.children().contains(scrollTags) &&scrollTags.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
-        if (this.children().contains(scrollNBT) &&scrollNBT.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
+        if (this.children().contains(scrollCategory) && scrollCategory.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
+        if (this.children().contains(scrollTags) && scrollTags.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
+        if (this.children().contains(scrollNBT) && scrollNBT.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
         if (super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY)) return true;
         return false;
     }
@@ -509,7 +513,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) // MOUSEPIPE
     {
-        Chatter.chat("mouseReleased");
+        //Chatter.chat("mouseReleased");
         //_mousedown = false;
         return super.mouseReleased(pMouseX, pMouseY, pButton);
     }
@@ -526,6 +530,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     }
 
     // do not call other functions as it may recurse
+    // clears out the Selected Slot indicator and related things
     private void clearSelectedSlot()
     {
         slotSelectedForTag = null;
@@ -600,9 +605,62 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             scrollTags.setDisabled(!slotSelectedForTag.getCipherSlot().canBeTag());
         } else
         {
-            clearSelectedSlot();
+            scrollTags.setItems(new ArrayList<>());
+            scrollNBT.setItems(new ArrayList<>());
         }
 
+    }
+
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+    {
+        // Let super handle text boxes etc.
+        if (super.keyPressed(keyCode, scanCode, modifiers))
+        {
+            return true;
+        }
+        InputConstants.Key mouseKey = InputConstants.getKey(keyCode, scanCode);
+        Minecraft mc = Minecraft.getInstance();
+
+//        // Mouse position in *window* coordinates
+//        double mouseX = mc.mouseHandler.xpos();
+//        double mouseY = mc.mouseHandler.ypos();
+//
+//        // Convert to scaled GUI coordinates
+//        double guiMouseX = mouseX * (double) this.width / (double) mc.getWindow().getScreenWidth();
+//        double guiMouseY = mouseY * (double) this.height / (double) mc.getWindow().getScreenHeight();
+
+        var hovered = getSlotUnderMouse();
+        // Check JEI’s registered key mappings
+        if (hovered != null && hovered instanceof CipherSlotProxy proxy)
+        {
+            if (proxy.getCipherSlot().getMode() == CipherSlot.SlotMode.ITEM)
+            {
+                if (JEIPlugin.getShowUses().isActiveAndMatches(mouseKey))    // U. show inputs
+                {
+                    JEIPlugin.showRecipes(proxy.getCipherSlot().getItemStack(), false);
+                    return true; // consumed
+                }
+                if (JEIPlugin.getShowRecipe().isActiveAndMatches(mouseKey))  // R. show outputs
+                {
+                    JEIPlugin.showRecipes(proxy.getCipherSlot().getItemStack(), true);
+                    return true; // consumed
+                }
+            }
+            if (proxy.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID)
+            {
+                if (JEIPlugin.getShowUses().isActiveAndMatches(mouseKey))    // U. show inputs
+                {
+                    JEIPlugin.showRecipes(proxy.getCipherSlot().getFluid(), false);
+                    return true; // consumed
+                }
+                if (JEIPlugin.getShowRecipe().isActiveAndMatches(mouseKey))  // R. show outputs
+                {
+                    JEIPlugin.showRecipes(proxy.getCipherSlot().getFluid(), true);
+                    return true; // consumed
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -632,6 +690,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         makeRecipeButtons();
         makeClipboardButtons();
 
+        buildScrollListsForSelectedSlot();
         setCurrentCategoryDropdownValues();
         addParameterFields();
         addRenderables();
@@ -664,6 +723,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         if (_selectedTab == PAGE_CLIPBOARD)
         {
             addRenderableWidget(btnClearOriginalRecipe);
+            addRenderableWidget(btnCopyOriginalRecipe);
             addRenderableWidget(chkIncludeComments);
             addRenderableWidget(btnReloadJSON);
             addRenderableWidget(btnSampleRecipe1);
@@ -707,20 +767,24 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             buildScrollListsForSelectedSlot();
         });
         btnSubtractCount = Button.builder(Component.literal("-"), (btn) -> {
-            if (slotSelectedForTag != null)
-            {
-                //slotSelectedForTag.getCipherSlot().adjustCount(-1);
-                sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "-1");
-            }
-        }).bounds(tabArea.getX() + 6, tabArea.getY() + 6, 16, 16).build();
+                    if (slotSelectedForTag != null)
+                    {
+                        //slotSelectedForTag.getCipherSlot().adjustCount(-1);
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "" + (Screen.hasShiftDown() ? -10 : -1));
+                    }
+                }).bounds(tabArea.getX() + 6, tabArea.getY() + 6, 16, 16)
+                .tooltip(Tooltip.create(Component.literal("Hold [shift] to adjust by 10")))
+                .build();
 
         btnAddCount = Button.builder(Component.literal("+"), (btn) -> {
-            if (slotSelectedForTag != null)
-            {
-                //slotSelectedForTag.getCipherSlot().adjustCount(1);
-                sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "1");
-            }
-        }).bounds(btnSubtractCount.getX() + btnSubtractCount.getWidth() + 2, tabArea.getY() + 6, 16, 16).build();
+                    if (slotSelectedForTag != null)
+                    {
+                        //slotSelectedForTag.getCipherSlot().adjustCount(1);
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "" + (Screen.hasShiftDown() ? 10 : 1));
+                    }
+                }).bounds(btnSubtractCount.getX() + btnSubtractCount.getWidth() + 2, tabArea.getY() + 6, 16, 16)
+                .tooltip(Tooltip.create(Component.literal("Hold [shift] to adjust by 10")))
+                .build();
 
         btnSubtractCountX10 = Button.builder(Component.literal("-10"), (btn) -> {
             if (slotSelectedForTag != null)
@@ -784,12 +848,25 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
     private void makeClipboardButtons()
     {
-        btnClearOriginalRecipe = new ImageButton(tabArea.getX() + tabArea.getWidth() - 20, tabArea.getY() + 6, 13, 13, 13, 0, 13, GUI_BITMAP, GUI_BITMAP_W,
-                GUI_BITMAP_H, (btn) -> {
-            sendIntIntMessage(KubeJSTableBlockEntity.ORIGINAL_RECIPE_CLEAR_ON_SERVER, 0);
-            btnClearOriginalRecipe.setFocused(false);
-            this.setFocused(null);
-        });
+        btnClearOriginalRecipe = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 32, tabArea.getY() + 6,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BUTTON_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
+                (btn) -> {
+                    sendIntIntMessage(KubeJSTableBlockEntity.ORIGINAL_RECIPE_CLEAR_ON_SERVER, 0);
+                    btnClearOriginalRecipe.setFocused(false);
+                    this.setFocused(null);
+                });
+        btnCopyOriginalRecipe = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 16, tabArea.getY() + 6,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_COPY_X, GUI_COPY_Y, GUI_BUTTON_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
+                (btn) -> {
+                    if (container.getBlockEntity().getOriginalRecipeID() != null)
+                    {
+                        var json = RecipeJsonFetcher.getRecipeJson(Minecraft.getInstance().getSingleplayerServer(),
+                                container.getBlockEntity().getOriginalRecipeID());
+                        Minecraft.getInstance().keyboardHandler.setClipboard(json.toString());
+                        Chatter.chat(container.getBlockEntity().getOriginalRecipeID().toString() + " copied to clipboard.");
+                    } else
+                        btnCopyOriginalRecipe.visible = false; // somehow we are visible?
+                });
 
         chkIncludeComments = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + tabArea.getHeight() - 32, 16, 16, Component.literal("Comments?"),
                 true, true);
@@ -806,7 +883,8 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             sendIntIntMessage(KubeJSTableBlockEntity.RUN_COMMAND, KubeJSTableBlockEntity.RUN_COMMAND_RELOAD);
         }).bounds(tabArea.getX() + tabArea.getWidth() - 72, tabArea.getY() + tabArea.getHeight() - 50, 66, 16).build();
 
-        btnSampleRecipe1 = new ImageButton(tabArea.getX() + tabArea.getWidth() - 36 - 16, tabArea.getY() + tabArea.getHeight() - 26, 13, 13, 13, 0, 13,
+        btnSampleRecipe1 = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 36 - 16, tabArea.getY() + tabArea.getHeight() - 26,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BITMAP_H,
                 GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H, (btn) -> {
             sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 91);
             btnClearScreen.setFocused(false);
@@ -945,12 +1023,29 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
         if (_selectedTab == PAGE_ITEM_EDIT)
         {
-            btnAddCount.visible = slotSelectedForTag != null && (!slotSelectedForTag.getCipherSlot().isSingle() || slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID);
-            btnSubtractCount.visible = slotSelectedForTag != null && (!slotSelectedForTag.getCipherSlot().isSingle() || slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID);
-            btnAddCountX10.visible = slotSelectedForTag != null && slotSelectedForTag.getCipherSlot().canBeFluid() && slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID;
-            btnSubtractCountX10.visible = slotSelectedForTag != null && slotSelectedForTag.getCipherSlot().canBeFluid() && slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID;
-            btnAddCountX100.visible = slotSelectedForTag != null && slotSelectedForTag.getCipherSlot().canBeFluid() && slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID;
-            btnSubtractCountX100.visible = slotSelectedForTag != null && slotSelectedForTag.getCipherSlot().canBeFluid() && slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID;
+            if (slotSelectedForTag == null)
+            {
+                btnAddCount.visible = false;
+                btnSubtractCount.visible = false;
+                btnAddCountX10.visible = false;
+                btnSubtractCountX10.visible = false;
+                btnAddCountX100.visible = false;
+                btnSubtractCountX100.visible = false;
+            } else
+            {
+                var fluidmode = slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID;
+                var multimode = !slotSelectedForTag.getCipherSlot().isSingle();
+                var by1 = (multimode || fluidmode);
+                var by10 = (multimode || fluidmode);
+                var by100 = fluidmode;
+
+                btnAddCount.visible = by1;
+                btnSubtractCount.visible = by1;
+                btnAddCountX10.visible = by10;
+                btnSubtractCountX10.visible = by10;
+                btnAddCountX100.visible = by100;
+                btnSubtractCountX100.visible = by100;
+            }
         }
 
         for (var b : _templateButtons)

@@ -81,6 +81,7 @@ public class CipherTemplate extends CipherGridObject
     {
         var string = buildString(data);
         Minecraft.getInstance().keyboardHandler.setClipboard(string);
+        Chatter.chat(data.cipher.getName() + " / " + this.name + " " + " copied to clipboard.");
     }
 
     private String buildString(DataLoad data)

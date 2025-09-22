@@ -1,0 +1,88 @@
+{
+  "type": "ars_nouveau:imbuement",
+  "name": "Imbuement",
+  "category": "Ars Nouveau",
+  "inputs": [
+    {
+      "path": "input",
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 0,
+      "single": true
+    },
+    {
+      "path": "pedestalItems",
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 2,
+      "repeat": {
+        "shape": "array",
+        "rows": 1,
+        "cols": 3
+      },
+      "single": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "result",
+      "type": "itemstack",
+      "gridx": 5,
+      "gridy": 0,
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "source",
+      "label": "Source",
+      "type": "number",
+      "default": "2000",
+      "gridx": 4,
+      "gridy": 7,
+      "gridw": 3,
+      "h": 10
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:output>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<snippet:JSON:Datapack>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{\"type\":\"<<type>>\",\"input\":<<ingredient:input>>,\"output\":<<item-id:result>>,\"count\":<<item-count:result>>,\"source\":<<parameter:source>>,\"pedestalItems\":<<ingredients:pedestalItems>>}"
+          ]
+        }
+      ]
+    }
+  ]
+}

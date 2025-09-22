@@ -1,4 +1,4 @@
-package pictisoft.cipherwright.util;
+package pictisoft.cipherwright.gui;
 
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
@@ -224,10 +224,8 @@ public class ItemScrollPanel<T> extends ScrollPanel
 
         this._barLeft = this.left + this.width - _barWidth;
         this._scrolling = button == 0 && mouseX >= _barLeft && mouseX < _barLeft + _barWidth;
-        Chatter.chat("_scrolling? " + mouseX + " " + _barLeft + " " + mouseX + " " + _barLeft + " " + _barWidth);
         if (this._scrolling)
         {
-            Chatter.chat("_scrolling! " + mouseX + " " + _barLeft + " " + mouseY + " " + _barLeft + " " + _barWidth);
             return true;
         }
 //        int mouseListY = ((int) mouseY) - this.top - this.getContentHeight() + (int) this.scrollDistance - border;
@@ -281,7 +279,7 @@ public class ItemScrollPanel<T> extends ScrollPanel
     {
         if (visible && scroll != 0)
         {
-            Chatter.chat("scroll");
+            //Chatter.chat("scroll");
             this.scrollDistance += -scroll * getScrollAmount();
             applyScrollLimits();
             return true;

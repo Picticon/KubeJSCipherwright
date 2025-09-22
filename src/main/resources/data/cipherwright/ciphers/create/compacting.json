@@ -45,6 +45,7 @@
       "placeholder": "ticks",
       "label": "Heat",
       "type": "combo",
+      "default": "none",
       "options": [
         "none",
         "heated",

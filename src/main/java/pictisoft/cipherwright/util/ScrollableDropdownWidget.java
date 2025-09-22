@@ -116,7 +116,7 @@ public class ScrollableDropdownWidget extends AbstractWidget implements Renderab
             // Check if click is on scrollbar
             if (shouldShowScrollbar() && isMouseOverScrollbar((int) mouseX, (int) mouseY))
             {
-                Chatter.chat("mouseClicked: scrollbar");
+                //Chatter.chat("mouseClicked: scrollbar");
                 isDraggingScrollbar = true;
                 lastMouseY = (int) mouseY;
                 return true;

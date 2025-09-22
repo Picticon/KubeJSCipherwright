@@ -1,35 +1,24 @@
 {
-  "type": "create:sandpaper_polishing",
-  "name": "Sandpaper Polishing",
-  "category": "Create",
+  "type": "botania:pure_daisy",
+  "name": "Pure Daisy",
+  "category": "Botania",
   "inputs": [
     {
+      "path": "input.block",
       "type": "ingredient",
-      "single": true,
-      "path": "ingredients",
-      "index": 0,
-      "allowfluids": false,
       "gridx": 0,
-      "gridy": 0
+      "gridy": 0,
+      "single": true
     }
   ],
   "outputs": [
     {
-      "path": "results",
+      "path": "output.name",
       "type": "itemstack",
-      "allowtag": false,
-      "allowfluids": false,
-      "index": 0,
-      "gridx": 0,
-      "gridy": 2
-    }
-  ],
-  "illustrations": [
-    {
-      "type": "down_arrow",
       "gridx": 3,
-      "gridy": 0.7,
-      "scale": 0.75
+      "gridy": 0,
+      "allowtag": false,
+      "single": true
     }
   ],
   "templates": [
@@ -41,13 +30,13 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:results>>"
+            "// <<description:output>>"
           ]
         },
         {
           "title": "Create",
           "fragments": [
-            "event.custom(<<template:JSON>>);"
+            "event.custom(<<snippet:JSON:Datapack>>);"
           ]
         },
         {
@@ -66,12 +55,14 @@
       "snippets": [
         {
           "title": "Datapack",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
+            "{\"type\":\"<<type>>\",\"input\":{type:\"block\",\"block\":<<item-id:input.block>>},\"output\":{\"name\":<<item-id:output.name>>}}"
           ]
         }
       ]
     }
   ]
 }
+
+
+

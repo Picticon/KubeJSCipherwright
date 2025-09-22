@@ -1,6 +1,6 @@
 {
-  "type": "create:haunting",
-  "name": "Haunting",
+  "type": "create:splashing",
+  "name": "Splashing",
   "category": "Create",
   "inputs": [
     {

@@ -1,35 +1,46 @@
 {
-  "type": "create:sandpaper_polishing",
-  "name": "Sandpaper Polishing",
-  "category": "Create",
+  "type": "botania:terra_plate",
+  "name": "Terra Plate",
+  "category": "Botania",
   "inputs": [
     {
-      "type": "ingredient",
-      "single": true,
       "path": "ingredients",
-      "index": 0,
-      "allowfluids": false,
+      "type": "ingredient",
       "gridx": 0,
-      "gridy": 0
+      "gridy": 0,
+      "repeat": {
+        "shape": "array",
+        "rows": 3,
+        "cols": 3
+      },
+      "single": true
     }
   ],
   "outputs": [
     {
-      "path": "results",
+      "path": "result",
       "type": "itemstack",
-      "allowtag": false,
-      "allowfluids": false,
-      "index": 0,
-      "gridx": 0,
-      "gridy": 2
+      "gridx": 5,
+      "gridy": 0,
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "mana",
+      "label": "Mana",
+      "type": "number",
+      "default": "500000",
+      "gridx": 4,
+      "gridy": 7,
+      "gridw": 3
     }
   ],
   "illustrations": [
     {
-      "type": "down_arrow",
-      "gridx": 3,
-      "gridy": 0.7,
-      "scale": 0.75
+      "type": "left_arrow",
+      "gridx": 3.3,
+      "gridy": 1
     }
   ],
   "templates": [
@@ -41,13 +52,13 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:results>>"
+            "// <<description:output>>"
           ]
         },
         {
           "title": "Create",
           "fragments": [
-            "event.custom(<<template:JSON>>);"
+            "event.custom(<<snippet:JSON:Datapack>>);"
           ]
         },
         {
@@ -66,12 +77,12 @@
       "snippets": [
         {
           "title": "Datapack",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"result\":<<itemstack:result>>,\"mana\":<<parameter:mana>>}"
           ]
         }
       ]
     }
   ]
 }
+

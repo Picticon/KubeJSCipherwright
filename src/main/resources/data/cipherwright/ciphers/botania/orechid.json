@@ -1,35 +1,34 @@
 {
-  "type": "create:sandpaper_polishing",
-  "name": "Sandpaper Polishing",
-  "category": "Create",
+  "type": "botania:orechid",
+  "name": "Orechid",
+  "category": "Botania",
   "inputs": [
     {
+      "path": "input.block",
       "type": "ingredient",
-      "single": true,
-      "path": "ingredients",
-      "index": 0,
-      "allowfluids": false,
       "gridx": 0,
-      "gridy": 0
+      "gridy": 0,
+      "single": true
     }
   ],
   "outputs": [
     {
-      "path": "results",
+      "path": "output.block",
       "type": "itemstack",
-      "allowtag": false,
-      "allowfluids": false,
-      "index": 0,
-      "gridx": 0,
-      "gridy": 2
+      "gridx": 3,
+      "gridy": 0,
+      "allowtag": false
     }
   ],
-  "illustrations": [
+  "parameters": [
     {
-      "type": "down_arrow",
-      "gridx": 3,
-      "gridy": 0.7,
-      "scale": 0.75
+      "path": "weight",
+      "label": "Weight",
+      "type": "number",
+      "default": "500",
+      "gridx": 4,
+      "gridy": 4,
+      "gridw": 3
     }
   ],
   "templates": [
@@ -41,13 +40,13 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:results>>"
+            "// <<description:output>>"
           ]
         },
         {
           "title": "Create",
           "fragments": [
-            "event.custom(<<template:JSON>>);"
+            "event.custom(<<snippet:JSON:Datapack>>);"
           ]
         },
         {
@@ -66,12 +65,15 @@
       "snippets": [
         {
           "title": "Datapack",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
-          ]
+            "{\"type\":\"<<type>>\",\"input\":{type:\"block\",\"block\":<<item-id:input.block>>},\"output\":{\"type\":\"block\",\"block\":<<item-id:output.block>>},\"weight\":<<parameter:weight>>}"
+          ],
+          "flags": "prettyjson"
         }
       ]
     }
   ]
 }
+
+
+

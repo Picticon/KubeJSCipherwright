@@ -1,11 +1,10 @@
-package pictisoft.cipherwright.util;
+package pictisoft.cipherwright.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 
 public class AdvancedEditBox extends EditBox
 {

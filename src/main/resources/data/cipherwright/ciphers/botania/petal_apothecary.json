@@ -1,35 +1,37 @@
 {
-  "type": "create:sandpaper_polishing",
-  "name": "Sandpaper Polishing",
-  "category": "Create",
+  "type": "botania:petal_apothecary",
+  "name": "Petal Apothecary",
+  "category": "Botania",
   "inputs": [
     {
-      "type": "ingredient",
-      "single": true,
       "path": "ingredients",
-      "index": 0,
-      "allowfluids": false,
-      "gridx": 0,
-      "gridy": 0
+      "type": "ingredient",
+      "gridx": 3,
+      "gridy": 3,
+      "repeat": {
+        "shape": "oval",
+        "segments": 8,
+        "radiusx": 2.5,
+        "radiusy": 2.5
+      },
+      "single": true
+    },
+    {
+      "path": "reagent",
+      "type": "ingredient",
+      "gridx": 3,
+      "gridy": 1.8,
+      "single": true
     }
   ],
   "outputs": [
     {
-      "path": "results",
+      "path": "output",
       "type": "itemstack",
-      "allowtag": false,
-      "allowfluids": false,
-      "index": 0,
-      "gridx": 0,
-      "gridy": 2
-    }
-  ],
-  "illustrations": [
-    {
-      "type": "down_arrow",
       "gridx": 3,
-      "gridy": 0.7,
-      "scale": 0.75
+      "gridy": 3.4,
+      "large": true,
+      "allowtag": false
     }
   ],
   "templates": [
@@ -41,13 +43,13 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:results>>"
+            "// <<description:output>>"
           ]
         },
         {
           "title": "Create",
           "fragments": [
-            "event.custom(<<template:JSON>>);"
+            "event.custom(<<snippet:JSON:Datapack>>);"
           ]
         },
         {
@@ -66,9 +68,8 @@
       "snippets": [
         {
           "title": "Datapack",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"output\":<<itemstack:output>>,\"reagent\":<<ingredient:reagent>>}"
           ]
         }
       ]

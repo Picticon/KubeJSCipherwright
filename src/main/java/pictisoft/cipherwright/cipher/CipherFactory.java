@@ -36,7 +36,7 @@ public class CipherFactory
                     float radiusy = 1;
                     if (repeat.has("radiusy")) radiusy = repeat.get("radiusy").getAsFloat();
                     var idx = 0;
-                    for (var s = 0f; s < Math.PI * 2; s += (float) ((Math.PI * 2) / count))
+                    for (var s = 0f; s < Math.PI * 2 - .1f; s += (float) ((Math.PI * 2) / count))
                     {
                         var ret = makeObject(clazz, json);
                         if (ret != null)
