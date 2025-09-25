@@ -62,4 +62,13 @@ public class Chatter
             //Chatter.chat(message);
         }
     }
+
+    public static void chat(Component fullMessage)
+    {
+        var mc = Minecraft.getInstance();
+        if (mc.level != null && mc.level.isClientSide && mc.player != null)
+        {
+            mc.player.sendSystemMessage(fullMessage);
+        }
+    }
 }

@@ -20,6 +20,7 @@ public class CipherIllustration extends CipherGridObject
     private float scale = 1f;
     private float alpha = 1f;
     private String formula;
+    private String condition;
 
     //    public static void load(List<CipherIllustration> illustrations, JsonObject json)
 //    {
@@ -42,6 +43,7 @@ public class CipherIllustration extends CipherGridObject
             if (input.has("item")) ret.item = input.get("item").getAsString();
             if (input.has("scale")) ret.scale = input.get("scale").getAsFloat();
             if (input.has("alpha")) ret.alpha = input.get("alpha").getAsFloat();
+            if (input.has("condition")) ret.condition = input.get("condition").getAsString();
         }
     }
 
@@ -60,6 +62,10 @@ public class CipherIllustration extends CipherGridObject
 
     public void render(GuiGraphics gui, GUIElementRenderer guiRenderer, Map<String, String> cipherParameters)
     {
+        if (condition != null )
+        {
+            if (!CipherParameter.testCondition(condition, cipherParameters)) return;
+        }
         gui.pose().pushPose();
         if (alpha > 0 && alpha < 1)
         {

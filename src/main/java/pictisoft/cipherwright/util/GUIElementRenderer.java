@@ -7,6 +7,8 @@ public class GUIElementRenderer
 {
     private static final int WELL_X = 0;
     private static final int WELL_Y = 0;
+    private static final int WELL_BUCKET_X = 0;
+    private static final int WELL_BUCKET_Y = 44;
     private static final int WELL_W = 18;
     private static final int WELL_H = 18;
     private static final int WELL_LARGE_X = 0;
@@ -48,25 +50,30 @@ public class GUIElementRenderer
         gui.blit(GUI, x - 5, y - 5, WELL_LARGE_X, WELL_LARGE_Y, WELL_LARGE_W, WELL_LARGE_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    public void drawLeftArrow(GuiGraphics gui, int x, int y)
+    public void drawSlotWellBucket(GuiGraphics gui, int x, int y)
     {
-        gui.blit(GUI, x, y, ARROW_LEFT_X, ARROW_LEFT_Y, ARROW_LEFT_W, ARROW_LEFT_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+        gui.blit(GUI, x-1, y-1, WELL_BUCKET_X, WELL_BUCKET_Y, WELL_W, WELL_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
-    public void drawRightArrow(GuiGraphics gui, int x, int y)
-    {
-        gui.blit(GUI, x, y, ARROW_RIGHT_X, ARROW_RIGHT_Y, ARROW_RIGHT_W, ARROW_RIGHT_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-    }
-
-    public void drawUpArrow(GuiGraphics gui, int x, int y)
-    {
-        gui.blit(GUI, x, y, ARROW_UP_X, ARROW_UP_Y, ARROW_UP_W, ARROW_UP_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-    }
-
-    public void drawDownArrow(GuiGraphics gui, int x, int y)
-    {
-        gui.blit(GUI, x, y, ARROW_DOWN_X, ARROW_DOWN_Y, ARROW_DOWN_W, ARROW_DOWN_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-    }
+//    public void drawLeftArrow(GuiGraphics gui, int x, int y)
+//    {
+//        gui.blit(GUI, x, y, ARROW_LEFT_X, ARROW_LEFT_Y, ARROW_LEFT_W, ARROW_LEFT_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+//    }
+//
+//    public void drawRightArrow(GuiGraphics gui, int x, int y)
+//    {
+//        gui.blit(GUI, x, y, ARROW_RIGHT_X, ARROW_RIGHT_Y, ARROW_RIGHT_W, ARROW_RIGHT_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+//    }
+//
+//    public void drawUpArrow(GuiGraphics gui, int x, int y)
+//    {
+//        gui.blit(GUI, x, y, ARROW_UP_X, ARROW_UP_Y, ARROW_UP_W, ARROW_UP_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+//    }
+//
+//    public void drawDownArrow(GuiGraphics gui, int x, int y)
+//    {
+//        gui.blit(GUI, x, y, ARROW_DOWN_X, ARROW_DOWN_Y, ARROW_DOWN_W, ARROW_DOWN_H, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+//    }
 
     public void drawLeftArrow(GuiGraphics gui, int x, int y, float alpha, float scale)
     {

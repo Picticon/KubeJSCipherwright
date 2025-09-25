@@ -1,0 +1,149 @@
+{
+  "type": "bloodmagic:arc",
+  "name": "Alchemical Reaction Chamber",
+  "category": "Blood Magic",
+  "inputs": [
+    {
+      "type": "ingredient",
+      "path": "input",
+      "path:count": "inputsize",
+      "gridx": 0,
+      "gridy": 0
+    },
+    {
+      "type": "ingredient",
+      "path": "tool",
+      "gridx": 1,
+      "gridy": 0.5,
+      "single": true
+    },
+    {
+      "type": "ingredient",
+      "path": "inputFluid",
+      "gridx": 0,
+      "gridy": 1,
+      "single": true,
+      "allowitem": false,
+      "allowtag": false,
+      "allowfluid": true,
+      "style": "bucket"
+    }
+  ],
+  "outputs": [
+    {
+      "type": "itemstack",
+      "path": "output",
+      "gridx": 2.5,
+      "gridy": 0.5,
+      "allowtag": false,
+      "members": [
+        {
+          "path": "mainoutputchance",
+          "type": "number",
+          "label": "Chance %",
+          "flags": "right",
+          "display": "percent top-left"
+        }
+      ]
+    },
+    {
+      "type": "itemstack",
+      "path": "addedoutput",
+      "gridx": 3.5,
+      "gridy": 0.5,
+      "allowtag": false,
+      "repeat": {
+        "shape": "array",
+        "rows": 1,
+        "cols": 3
+      },
+      "members": [
+        {
+          "path": "chance",
+          "type": "number",
+          "label": "Chance %",
+          "flags": "right",
+          "display": "percent top-left"
+        },
+        {
+          "path": "mainchance",
+          "type": "number",
+          "label": "Main %",
+          "flags": "right",
+          "display": "percent top-right"
+        }
+      ]
+    },
+    {
+      "path": "outputFluid",
+      "gridx": 7,
+      "gridy": 0.5,
+      "style": "bucket",
+      "allowitem": false,
+      "allowtag": false,
+      "allowfluid": true
+    }
+  ],
+  "parameters": [
+    {
+      "path": "consumeingredient",
+      "label": "Consume Ingredient?",
+      "type": "boolean",
+      "gridx": 6,
+      "gridy": 3
+    },
+    {
+      "path": "mainoutputchance",
+      "label": "Main Output Chance",
+      "type": "number",
+      "gridx": 6,
+      "gridy": 4,
+      "gridw": 3
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:results>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<template:JSON>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{\"type\":\"<<type>>\",\"input\":<<ingredients:input>>,\"output\":<<itemstack:output>>,",
+            "\"syphon\":<<parameter:syphon>>,",
+            "\"ticks\":<<parameter:ticks>>,",
+            "\"upgradeLevel\":<<parameter:upgradeLevel>>",
+            "}"
+          ]
+        }
+      ]
+    }
+  ]
+}

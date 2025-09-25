@@ -188,12 +188,13 @@ public class CipherGridObject
         }
 
         if (input.has("left")) ret.x = input.get("left").getAsInt();
-        if (input.has("gridx")) ret.x = Math.round(input.get("gridx").getAsFloat() * GRID_W);
         if (input.has("top")) ret.y = input.get("top").getAsInt();
-        if (input.has("gridy")) ret.y = Math.round(input.get("gridy").getAsFloat() * GRID_H);
         if (input.has("w")) ret.width = Math.round(input.get("w").getAsFloat());
-        if (input.has("gridw")) ret.width = Math.round(input.get("gridw").getAsFloat() * GRID_W);
         if (input.has("h")) ret.height = Math.round(input.get("h").getAsFloat());
+
+        if (input.has("gridx")) ret.x = Math.round(input.get("gridx").getAsFloat() * GRID_W);
+        if (input.has("gridy")) ret.y = Math.round(input.get("gridy").getAsFloat() * GRID_H);
+        if (input.has("gridw")) ret.width = Math.round(input.get("gridw").getAsFloat() * GRID_W);
         if (input.has("gridh")) ret.height = Math.round(input.get("gridh").getAsFloat() * GRID_W);
     }
 }

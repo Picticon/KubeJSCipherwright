@@ -14,6 +14,8 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
+
 public class ItemAndIngredientHelpers
 {
     public static Ingredient ingredientWithNBTFromJson(JsonObject json)
@@ -29,6 +31,16 @@ public class ItemAndIngredientHelpers
             ig.getItems()[0].setTag(tag);
         }
         return ig;
+    }
+
+    public static JsonArray ingredientsWithNBTToJson(List<Ingredient> ingredients)
+    {
+        var ret = new JsonArray();
+        for(var i:ingredients)
+        {
+            ret.add(ingredientWithNBTToJson(i));
+        }
+        return ret;
     }
 
     public static JsonObject ingredientWithNBTToJson(Ingredient ingredient)

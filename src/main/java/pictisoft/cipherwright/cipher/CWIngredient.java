@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
 
 import java.util.regex.Matcher;
@@ -35,6 +36,14 @@ public abstract class CWIngredient
         if (json.has("item"))
             return new CWIngredientItem(json);
         return CWIngredient.EMPTY;
+    }
+
+    public static CWIngredient of(Ingredient ingredient)
+    {
+        var json = ingredient.toJson(); // we lose NBT... sigh
+        if (json.isJsonObject())
+            return fromJson(json.getAsJsonObject());
+        return of(ItemStack.EMPTY);
     }
 
     public abstract JsonElement toJson();

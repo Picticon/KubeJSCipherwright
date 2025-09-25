@@ -3,6 +3,7 @@ package pictisoft.cipherwright.blocks.kubejstable;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -13,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -56,6 +58,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     public static final int PARAMETER_SYNC = 90;
     public static final int RECIPE_TYPE_SCROLLBOX = 99;
     public static final int CHANGE_COMMENT_PARAMETER = 199;
+    public static final int HANDLE_JSON_AS_RECIPE = 599;
 
     public static final int RUN_COMMAND = 1000;
     public static final int RUN_COMMAND_RELOAD = 0;
@@ -100,6 +103,11 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
 
     public Cipher getCipher()
     {
+        // we MUST assume that _recipeTypeID is set to a cipher that exists...
+        if (CipherJsonLoader.getCipherByRecipeId(_recipeTypeID) == null)
+        {
+            return CipherJsonLoader.getDefaultCipher();
+        }
         return CipherJsonLoader.getCipherByRecipeId(_recipeTypeID);
     }
 
@@ -306,34 +314,34 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
 
     String json2()
     {
-        var sample1=
-        """
-                {
-                  "type": "create:crushing",
-                  "ingredients": [
-                    {
-                      "item": "minecraft:amethyst_block"
-                    }
-                  ],
-                  "processingTime": 150,
-                  "results": [
-                    {
-                      "chance": 0.75,
-                      "count": 3,
-                      "item": "minecraft:amethyst_shard"
-                    },
-                    {
-                      "chance": 0.5,
-                      "item": "minecraft:amethyst_shard"
-                    },
-                    {
-                      "chance": 0.05,
-                      "item": "minecraft:diamond"
-                    }
-                  ]
-                }
-                """;
-        var sample2= """
+        var sample1 =
+                """
+                        {
+                          "type": "create:crushing",
+                          "ingredients": [
+                            {
+                              "item": "minecraft:amethyst_block"
+                            }
+                          ],
+                          "processingTime": 150,
+                          "results": [
+                            {
+                              "chance": 0.75,
+                              "count": 3,
+                              "item": "minecraft:amethyst_shard"
+                            },
+                            {
+                              "chance": 0.5,
+                              "item": "minecraft:amethyst_shard"
+                            },
+                            {
+                              "chance": 0.05,
+                              "item": "minecraft:diamond"
+                            }
+                          ]
+                        }
+                        """;
+        var sample2 = """
                 {
                   "type": "create:deploying",
                   "ingredients": [
@@ -350,7 +358,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                     }
                   ]
                 }""";
-        var sample3= """
+        var sample3 = """
                 {
                   "type": "create:sandpaper_polishing",
                   "ingredients": [
@@ -369,7 +377,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
 
     String json3()
     {
-        var aa= """
+        var aa = """
                 {
                   "type": "create:mechanical_crafting",
                   "acceptMirrored": false,
@@ -397,7 +405,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                   }
                 }
                 """;
-        var t=  """
+        var t = """
                 {
                    "type": "create:compacting",
                    "ingredients": [
@@ -423,7 +431,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                  }
                 
                 """;
-        var tt= """
+        var tt = """
                 {
                   "type": "create:emptying",
                   "ingredients": [
@@ -442,7 +450,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                   ]
                 }
                 """;
-        var ttt= """
+        var ttt = """
                 {
                   "type": "create:filling",
                   "ingredients": [
@@ -460,8 +468,8 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                       "item": "minecraft:grass_block"
                     }
                   ]
-                }"""  ;
-        var tttt= """
+                }""";
+        var tttt = """
                 {
                   "type": "create:haunting",
                   "ingredients": [
@@ -569,6 +577,11 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                 }
             }
         }
+        if (controlId == HANDLE_JSON_AS_RECIPE)
+        {
+            handleRecipe(value, null);
+            updateBlock();
+        }
     }
 
     @Override // remove from level
@@ -590,10 +603,13 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
             Optional<? extends Recipe<?>> recipe = recipeManager.byKey(recipeId);
 
             // json is the original recipe json declaration
-            var jsonRecipeString = RecipeJsonFetcher.getRecipeJson(getLevel().getServer(), recipeId);
-            if (recipe.isPresent() && jsonRecipeString != null)
+            if (getLevel().getServer()!=null&& getLevel().getServer() instanceof IntegratedServer clientserver)
             {
-                handleRecipe(jsonRecipeString, recipeId);
+                var jsonRecipeString = RecipeJsonFetcher.getRecipeJson(clientserver, recipeId);
+                if (recipe.isPresent() && jsonRecipeString != null)
+                {
+                    handleRecipe(jsonRecipeString, recipeId);
+                }
             }
         }
         updateBlock();
@@ -609,7 +625,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
         }
     }
 
-    private void handleRecipe(String jsonRecipeString, ResourceLocation recipeId)
+    public void handleRecipe(String jsonRecipeString, @Nullable ResourceLocation recipeId)
     {
         if (this.level != null && !this.level.isClientSide())
         {
@@ -622,7 +638,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                 {
                     var possibletype = new ResourceLocation(json.get("type").getAsString());
                     var cipher = CipherJsonLoader.getCipherByRecipeId(possibletype);
-                    if (!cipher.getInputs().isEmpty())
+                    if (cipher != null && !cipher.getInputs().isEmpty())
                     {
                         Cipher.clearSlots(this.getCipherSlots());
                         setRecipeTypeAndRebuildCipherSlots(cipher.getRecipeTypeId());

@@ -20,7 +20,7 @@
       "type": "itemstack",
       "gridx": 3,
       "gridy": 0,
-      "large": true,
+      "style": "large",
       "path": "result",
       "allowtag": false
     }

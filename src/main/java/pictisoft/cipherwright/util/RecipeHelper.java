@@ -1,5 +1,6 @@
 package pictisoft.cipherwright.util;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -10,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import pictisoft.cipherwright.cipher.CWIngredient;
+
+import java.util.Map;
 
 public class RecipeHelper
 {
@@ -171,5 +174,25 @@ public class RecipeHelper
     {
         CWIngredient[][] trimmed = trim(grid);
         return new int[]{trimmed.length, trimmed.length > 0 ? trimmed[0].length : 0};
+    }
+
+    public static String encodePattern(String[] encoded)
+    {
+        var json = new JsonArray();
+        for (var r : encoded)
+        {
+            json.add(r);
+        }
+        return json.toString();
+    }
+
+    public static String encodePatternKey(Map<String, CWIngredient> map)
+    {
+        var json = new JsonObject();
+        for (var r : map.entrySet())
+        {
+            json.add(r.getKey(), r.getValue().toJson());
+        }
+        return json.toString();
     }
 }

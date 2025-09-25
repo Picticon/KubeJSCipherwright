@@ -1,0 +1,157 @@
+{
+  "type": "bloodmagic:alchemytable",
+  "name": "Alchemy Table",
+  "category": "Blood Magic",
+  "inputs": [
+    {
+      "type": "ingredient",
+      "path": "input",
+      "gridx": 1,
+      "gridy": 0,
+      "single": true,
+      "repeat": {
+        "shape": "array",
+        "rows": 2,
+        "cols": 3
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "type": "itemstack",
+      "path": "output",
+      "gridx": 4.5,
+      "gridy": 0.5,
+      "style": "large",
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "syphon",
+      "label": "Syphon",
+      "default": 1000,
+      "type": "number",
+      "gridx": 5,
+      "gridy": 2.5,
+      "gridw": 3,
+      "tooltip": "Amount of LE required."
+    },
+    {
+      "path": "ticks",
+      "label": "Ticks",
+      "default": 100,
+      "type": "number",
+      "gridx": 5,
+      "gridy": 3.5,
+      "gridw": 3,
+      "tooltip": "Number of ticks to process."
+    },
+    {
+      "path": "upgradeLevel",
+      "label": "Upgrade Level",
+      "placeholder": "ticks",
+      "type": "combo-number",
+      "tooltip": "Required level of altar.",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "descriptions": [
+        "Level 0",
+        "Level 1",
+        "Level 2",
+        "Level 3",
+        "Level 4"
+      ],
+      "gridx": 5,
+      "gridy": 4.5,
+      "gridw": 3
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "item",
+      "gridx": 6.5,
+      "gridy": 0.5,
+      "item": "bloodmagic:weakbloodorb",
+      "condition": "upgradeLevel:0"
+    },
+    {
+      "type": "item",
+      "gridx": 6.5,
+      "gridy": 0.5,
+      "item": "bloodmagic:apprenticebloodorb",
+      "condition": "upgradeLevel:1"
+    },
+    {
+      "type": "item",
+      "gridx": 6.5,
+      "gridy": 0.5,
+      "item": "bloodmagic:magicianbloodorb",
+      "condition": "upgradeLevel:2"
+    },
+    {
+      "type": "item",
+      "gridx": 6.5,
+      "gridy": 0.5,
+      "item": "bloodmagic:masterbloodorb",
+      "condition": "upgradeLevel:3"
+    },
+    {
+      "type": "item",
+      "gridx": 6.5,
+      "gridy": 0.5,
+      "item": "bloodmagic:archmagebloodorb",
+      "condition": "upgradeLevel:4"
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:results>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<template:JSON>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{\"type\":\"<<type>>\",\"input\":<<ingredients:input>>,\"output\":<<itemstack:output>>,",
+            "\"syphon\":<<parameter:syphon>>,",
+            "\"ticks\":<<parameter:ticks>>,",
+            "\"upgradeLevel\":<<parameter:upgradeLevel>>",
+            "}"
+          ]
+        }
+      ]
+    }
+  ]
+}

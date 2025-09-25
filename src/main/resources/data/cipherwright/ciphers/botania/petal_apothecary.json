@@ -11,8 +11,8 @@
       "repeat": {
         "shape": "oval",
         "segments": 8,
-        "radiusx": 2.5,
-        "radiusy": 2.5
+        "radiusw": 2.5,
+        "radiush": 2.5
       },
       "single": true
     },
@@ -30,7 +30,7 @@
       "type": "itemstack",
       "gridx": 3,
       "gridy": 3.4,
-      "large": true,
+      "style": "large",
       "allowtag": false
     }
   ],

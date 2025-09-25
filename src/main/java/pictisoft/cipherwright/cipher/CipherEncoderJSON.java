@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
 import pictisoft.cipherwright.util.RecipeEncoder;
+import pictisoft.cipherwright.util.RecipeHelper;
 import pictisoft.cipherwright.util.StringConversions;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public class CipherEncoderJSON extends CipherEncoderBase
                 if (val == null || val.isBlank()) continue;
                 if (Objects.equals(para.getType(), "text") || Objects.equals(para.getType(), "combo"))
                     jchild.addProperty(slot.getWellMember(para), val);
-                if (Objects.equals(para.getType(), "number"))
+                if (Objects.equals(para.getType(), "number")|| Objects.equals(para.getType(), "combo-number"))
                     jchild.addProperty(slot.getWellMember(para), StringConversions.getAsFloat(val));
                 if (Objects.equals(para.getType(), "boolean"))
                     jchild.addProperty(slot.getWellMember(para), val.equals("true"));
@@ -127,23 +128,13 @@ public class CipherEncoderJSON extends CipherEncoderBase
     @Override
     protected String encodePattern(String[] encoded)
     {
-        var json = new JsonArray();
-        for (var r : encoded)
-        {
-            json.add(r);
-        }
-        return json.toString();
+        return RecipeHelper.encodePattern(encoded);
     }
 
     @Override
     protected String encodePatternKey(Map<String, CWIngredient> map)
     {
-        var json = new JsonObject();
-        for (var r : map.entrySet())
-        {
-            json.add(r.getKey(), r.getValue().toJson());
-        }
-        return json.toString();
+        return RecipeHelper.encodePatternKey(map);
     }
 
 }

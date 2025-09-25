@@ -10,6 +10,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pictisoft.cipherwright.CipherWrightMod;
 
 import java.util.*;
@@ -28,29 +30,30 @@ public class CipherJsonLoader extends SimpleJsonResourceReloadListener
         super(GSON, FOLDER_NAME);
     }
 
-    /// This is a UNIQUE template for a Cipher
-    public static Cipher getCipherByLocationId(ResourceLocation templateId)
-    {
-        for (Map.Entry<ResourceLocation, Cipher> entry : getCiphers().entrySet())
-        {
-            ResourceLocation key = entry.getKey();
-            var element = entry.getValue();
-            if (key == templateId) return element;
-        }
-        LOGGER.info("Could not locate a match for template {}", templateId.toString());
-        return getCipherByRecipeId(new ResourceLocation("minecraft:smelting"));
-    }
+//    /// This is a UNIQUE template for a Cipher
+//    public static Cipher getCipherByLocationId(ResourceLocation templateId)
+//    {
+//        for (Map.Entry<ResourceLocation, Cipher> entry : getCiphers().entrySet())
+//        {
+//            ResourceLocation key = entry.getKey();
+//            var element = entry.getValue();
+//            if (key == templateId) return element;
+//        }
+//        LOGGER.info("Could not locate a match for template {}", templateId.toString());
+//        return getCipherByRecipeId(new ResourceLocation("minecraft:smelting"));
+//    }
 
     /// This returns the first Cipher for a recipe type ID, e.g. "minecraft:crafting_shaped"
-    public static Cipher getCipherByRecipeId(ResourceLocation recipeId)
+    public static @Nullable Cipher getCipherByRecipeId(ResourceLocation recipeTypeId)
     {
         for (Map.Entry<ResourceLocation, Cipher> entry : getCiphers().entrySet())
         {
             var element = entry.getValue();
-            if (element.getRecipeTypeId().equals(recipeId)) return element;
+            if (element.getRecipeTypeId().equals(recipeTypeId)) return element;
         }
-        LOGGER.info("Could not locate a match for recipe type {}", recipeId.toString());
-        return getCipherByRecipeId(new ResourceLocation("minecraft:smelting"));
+        // LOGGER.info("Could not locate a match for recipe type {}", recipeTypeId.toString());
+        return null;
+        //return getCipherByRecipeId(new ResourceLocation("minecraft:smelting"));
     }
 
     public static List<String> getSortedCipherCategoryNames()
@@ -77,8 +80,20 @@ public class CipherJsonLoader extends SimpleJsonResourceReloadListener
         return ret;
     }
 
+    public static Cipher getDefaultCipher()
+    {
+        if (getCipherByRecipeId(new ResourceLocation("minecraft", "crafting_shaped")) != null)
+            return getCipherByRecipeId(new ResourceLocation("minecraft", "crafting_shaped"));
+        if (getCipherByRecipeId(new ResourceLocation("minecraft", "crafting_shapeless")) != null)
+            return getCipherByRecipeId(new ResourceLocation("minecraft", "crafting_shapeless"));
+        if (getCiphers().isEmpty()) return new Cipher();
+        return getCiphers().entrySet().stream().findFirst().get().getValue();
+    }
+
+
+    // this is called when the resources are loading or reloading.
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager resourceManager, ProfilerFiller profiler)
+    protected void apply(Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler)
     {
         loadedData.clear();
         cipherData.clear();
@@ -106,8 +121,7 @@ public class CipherJsonLoader extends SimpleJsonResourceReloadListener
                 LOGGER.error("Error loading JSON file {}: {}", key, e.getMessage());
             }
         }
-
-        LOGGER.info("Loaded {} JSON files from {}", loadedData.size(), FOLDER_NAME);
+        LOGGER.info("Loaded {} Cipher recipe types from {}", loadedData.size(), FOLDER_NAME);
     }
 
     // Getter for accessing the loaded data

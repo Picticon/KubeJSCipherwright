@@ -31,18 +31,18 @@ public class CipherFactory
                 {
                     int count = 1;
                     if (repeat.has("segments")) count = repeat.get("segments").getAsInt();
-                    float radiusx = 1;
-                    if (repeat.has("radiusx")) radiusx = repeat.get("radiusx").getAsFloat();
-                    float radiusy = 1;
-                    if (repeat.has("radiusy")) radiusy = repeat.get("radiusy").getAsFloat();
+                    float radiusw = 1;
+                    if (repeat.has("radiusw")) radiusw = repeat.get("radiusw").getAsFloat();
+                    float radiush = 1;
+                    if (repeat.has("radiush")) radiush = repeat.get("radiush").getAsFloat();
                     var idx = 0;
                     for (var s = 0f; s < Math.PI * 2 - .1f; s += (float) ((Math.PI * 2) / count))
                     {
                         var ret = makeObject(clazz, json);
                         if (ret != null)
                         {
-                            ret.x += (int) (Math.sin(s) * radiusx * GRID_W);
-                            ret.y -= (int) (Math.cos(s) * radiusy * GRID_H);
+                            ret.x += (int) (Math.sin(s) * radiusw * GRID_W);
+                            ret.y -= (int) (Math.cos(s) * radiush * GRID_H);
                             ret.index = idx++;
                             appendAndIndex(collectionArray, ret);
                         }

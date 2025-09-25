@@ -23,7 +23,7 @@
       "type": "itemstack",
       "gridx": 10,
       "gridy": 4,
-      "large": true,
+      "style": "large",
       "allowtag": false
     }
   ],

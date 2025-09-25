@@ -48,6 +48,8 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private static final int GUI_CLEAR_Y = 0;
     private static final int GUI_COPY_X = 26;
     private static final int GUI_COPY_Y = 0;
+    private static final int GUI_PASTE_X = 39;
+    private static final int GUI_PASTE_Y = 0;
     private Rect2i workArea;
     private Rect2i tabArea;
     private CipherSlotProxy slotSelectedForTag = null;
@@ -78,6 +80,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private int _selectedTab;
     private Button btnClearOriginalRecipe;
     private Button btnCopyOriginalRecipe;
+    private Button btnPasteOriginalRecipe;
     private final int RIGHT_PANEL_WIDTH = 170;
     private final int TAB_BUTTON_WIDTH = RIGHT_PANEL_WIDTH / 3;
     private FakeTabButton tabItemEdit;
@@ -202,6 +205,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     protected void renderLabels(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY)
     {
         //super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
+        pGuiGraphics.enableScissor(leftPos, topPos, leftPos + workArea.getWidth() - 30, topPos + 30);
         pGuiGraphics.drawString(this.font,
                 Component.literal(
                         container.getBlockEntity().getCipher().getCategory() +
@@ -209,6 +213,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                                 + container.getBlockEntity().getCipher().getName())
                 ,
                 this.titleLabelX, this.titleLabelY, 0x404040, false);
+        pGuiGraphics.disableScissor();
     }
 
     @Override
@@ -261,9 +266,13 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         gui.pose().translate(workArea.getX(), workArea.getY(), 0);
         for (var slot : menu.getBlockEntity().getCipherSlots())
         {
-            if (slot.isLarge())
+            if (slot.getStyle() == CipherWell.STYLE_ENUM.large)
             {
                 guiRenderer.drawSlotWellLarge(gui, slot.getX(), slot.getY());
+            } else if (slot.getStyle() == CipherWell.STYLE_ENUM.bucket)
+            {
+                guiRenderer.drawSlotWellBucket(gui, slot.getX(), slot.getY());
+
             } else
             {
                 guiRenderer.drawSlotWell(gui, slot.getX(), slot.getY());
@@ -289,7 +298,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     // render tag indicator
                     RenderSystem.disableDepthTest();
                     gui.pose().translate(slot.getX(), slot.getY() + 12, 0);
-                    gui.blit(GUI_BITMAP, 0, 0, 0, 26, 4, 5, GUI_BITMAP_W, GUI_BITMAP_H);
+                    gui.blit(GUI_BITMAP, 0, 0, 8, 52, 4, 5, GUI_BITMAP_W, GUI_BITMAP_H);
                     RenderSystem.enableDepthTest();
                 }
                 if (slot.getMode() == CipherSlot.SlotMode.TAG)
@@ -297,7 +306,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     // render tag indicator
                     RenderSystem.disableDepthTest();
                     gui.pose().translate(slot.getX() + 12, slot.getY() + 12, 0);
-                    gui.blit(GUI_BITMAP, 0, 0, 0, 26, 4, 5, GUI_BITMAP_W, GUI_BITMAP_H);
+                    gui.blit(GUI_BITMAP, 0, 0, 0, 52, 4, 4, GUI_BITMAP_W, GUI_BITMAP_H);
                     RenderSystem.enableDepthTest();
                 }
                 gui.pose().popPose();
@@ -360,11 +369,11 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 gui.disableScissor();
                 gui.pose().popPose();
                 btnClearOriginalRecipe.visible = true;
-                btnCopyOriginalRecipe.visible = true;
+                btnCopyOriginalRecipe.active = true;
             } else
             {
                 btnClearOriginalRecipe.visible = false;
-                btnCopyOriginalRecipe.visible = false;
+                btnCopyOriginalRecipe.active = false;
             }
         }
 
@@ -526,7 +535,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         buildScrollListsForSelectedSlot();
         if (slot.getCipherSlot().getCipherobject() instanceof CipherWell well)
             addWellParameterButtons(well);
-        setSelectedTab(0);
+        setSelectedTab(0); // calls setButtonVisibilities
     }
 
     // do not call other functions as it may recurse
@@ -539,7 +548,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         scrollTags.setSelectedIndex(-1, false);
         scrollNBT.setItems(new ArrayList<>());
         scrollNBT.setSelectedIndex(-1, false);
-        setSelectedTab(_selectedTab);
+        setSelectedTab(_selectedTab); // calls setButtonVisibilities
     }
 
     private void setTagModeForSelectedSlotFromList(Integer idx)
@@ -667,6 +676,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     protected void rebuildWidgets()
     {
         super.rebuildWidgets();
+        setButtonVisibilities();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -693,6 +703,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         buildScrollListsForSelectedSlot();
         setCurrentCategoryDropdownValues();
         addParameterFields();
+        setButtonVisibilities();
         addRenderables();
     }
 
@@ -724,6 +735,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         {
             addRenderableWidget(btnClearOriginalRecipe);
             addRenderableWidget(btnCopyOriginalRecipe);
+            addRenderableWidget(btnPasteOriginalRecipe);
             addRenderableWidget(chkIncludeComments);
             addRenderableWidget(btnReloadJSON);
             addRenderableWidget(btnSampleRecipe1);
@@ -743,14 +755,14 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
     private void makeItemEditButtons()
     {
-        var temp = getContainer().getBlockEntity().getCipher().getWellParameterMaximumCount() * WELLPARA_HEIGHT
-                + getContainer().getBlockEntity().getCipher().getWellParameterMaximumCount() * (WELLPARA_Y_ADVANCE - 1);
-        temp += (temp > 0 ? 2 : 0); // spacing
+        var temp = getContainer().getBlockEntity().getCipher().getWellParameterMaximumCount() * (WELLPARA_Y_ADVANCE);
+        temp += (temp > 0 ? WELLPARA_TOP_MARGIN : 0); // top of scroll bars
 
-        var remaining = Math.max(32, (tabArea.getHeight() - 30 - temp) / 2);
-        var ystack = tabArea.getY() + 23 + temp;
+        var remaining = Math.max(32, (tabArea.getHeight() - temp-6) / 2);
+        var ystack = tabArea.getY() + temp;
 
-        scrollTags = new ItemScrollPanel<>(tabArea.getWidth() - 6, remaining - 16, ystack + 16, tabArea.getX(), (a) -> a);
+        scrollTags = new ItemScrollPanel<>(tabArea.getWidth() - 6, remaining - 16,
+                ystack + 16, tabArea.getX(), (a) -> a);
         scrollTags.setItems(new ArrayList<>());
         scrollTags.setOnClick((idx) -> {
             setTagModeForSelectedSlotFromList(idx);
@@ -848,14 +860,19 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
     private void makeClipboardButtons()
     {
-        btnClearOriginalRecipe = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 32, tabArea.getY() + 6,
+        btnClearOriginalRecipe = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 16, tabArea.getY() + 6,
                 GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BUTTON_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
                 (btn) -> {
                     sendIntIntMessage(KubeJSTableBlockEntity.ORIGINAL_RECIPE_CLEAR_ON_SERVER, 0);
                     btnClearOriginalRecipe.setFocused(false);
                     this.setFocused(null);
                 });
-        btnCopyOriginalRecipe = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 16, tabArea.getY() + 6,
+        btnClearOriginalRecipe.setTooltip(Tooltip.create(Component.literal("Clear original recipe ID so it is not exported as a remove code fragment.")));
+
+        var py = tabArea.getY() + tabArea.getHeight() - 26;
+        var px = tabArea.getX() + tabArea.getWidth() - 20;
+
+        btnCopyOriginalRecipe = new NoFocusImageButton(px, py,
                 GUI_BUTTON_W, GUI_BUTTON_H, GUI_COPY_X, GUI_COPY_Y, GUI_BUTTON_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
                 (btn) -> {
                     if (container.getBlockEntity().getOriginalRecipeID() != null)
@@ -865,8 +882,21 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                         Minecraft.getInstance().keyboardHandler.setClipboard(json.toString());
                         Chatter.chat(container.getBlockEntity().getOriginalRecipeID().toString() + " copied to clipboard.");
                     } else
-                        btnCopyOriginalRecipe.visible = false; // somehow we are visible?
+                        btnCopyOriginalRecipe.active = false; // somehow we are visible?
                 });
+        btnCopyOriginalRecipe.setTooltip(Tooltip.create(Component.literal("Copy the original recipe JSON from resources/data to the clipboard.")));
+        px -= 15;
+
+        btnPasteOriginalRecipe = new NoFocusImageButton(px, py,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_PASTE_X, GUI_PASTE_Y, GUI_BUTTON_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
+                (btn) -> {
+                    var json = Minecraft.getInstance().keyboardHandler.getClipboard();
+                    sendIntStringMessage(KubeJSTableBlockEntity.HANDLE_JSON_AS_RECIPE, json);
+
+                    this.container.getBlockEntity().handleRecipe(json, null);
+                });
+        btnPasteOriginalRecipe.setTooltip(Tooltip.create(Component.literal("Paste JSON recipe from clipboard.")));
+        px -= 15;
 
         chkIncludeComments = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + tabArea.getHeight() - 32, 16, 16, Component.literal("Comments?"),
                 true, true);
@@ -883,25 +913,38 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             sendIntIntMessage(KubeJSTableBlockEntity.RUN_COMMAND, KubeJSTableBlockEntity.RUN_COMMAND_RELOAD);
         }).bounds(tabArea.getX() + tabArea.getWidth() - 72, tabArea.getY() + tabArea.getHeight() - 50, 66, 16).build();
 
-        btnSampleRecipe1 = new NoFocusImageButton(tabArea.getX() + tabArea.getWidth() - 36 - 16, tabArea.getY() + tabArea.getHeight() - 26,
-                GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BITMAP_H,
-                GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H, (btn) -> {
-            sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 91);
-            btnClearScreen.setFocused(false);
-            this.setFocused(null);
-        });
-        btnSampleRecipe2 = new ImageButton(tabArea.getX() + this.tabArea.getWidth() - 36, tabArea.getY() + tabArea.getHeight() - 26, 13, 13, 13, 0, 13,
-                GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H, (btn) -> {
-            sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 92);
-            btnClearScreen.setFocused(false);
-            this.setFocused(null);
-        });
-        btnSampleRecipe3 = new ImageButton(tabArea.getX() + tabArea.getWidth() - 20, tabArea.getY() + tabArea.getHeight() - 26, 13, 13, 13, 0, 13, GUI_BITMAP,
-                GUI_BITMAP_W, GUI_BITMAP_H, (btn) -> {
-            sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 93);
-            btnClearScreen.setFocused(false);
-            this.setFocused(null);
-        });
+
+        btnSampleRecipe3 = new NoFocusImageButton(px, py,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BITMAP_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
+                (btn) -> {
+                    sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 93);
+                    btnSampleRecipe3.setFocused(false);
+                    this.setFocused(null);
+                });
+        btnSampleRecipe3.setTooltip(Tooltip.create(Component.literal("Sample recipe 3")));
+        px -= 15;
+
+
+        btnSampleRecipe2 = new NoFocusImageButton(px, py,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BITMAP_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
+                (btn) -> {
+                    sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 92);
+                    btnSampleRecipe2.setFocused(false);
+                    this.setFocused(null);
+                });
+        btnSampleRecipe2.setTooltip(Tooltip.create(Component.literal("Sample recipe 2")));
+        px -= 15;
+
+
+        btnSampleRecipe1 = new NoFocusImageButton(px, py,
+                GUI_BUTTON_W, GUI_BUTTON_H, GUI_CLEAR_X, GUI_CLEAR_Y, GUI_BITMAP_H, GUI_BITMAP, GUI_BITMAP_W, GUI_BITMAP_H,
+                (btn) -> {
+                    sendIntIntMessage(KubeJSTableBlockEntity.RECIPE_CLEAR, 91);
+                    btnSampleRecipe1.setFocused(false);
+                    this.setFocused(null);
+                });
+        btnSampleRecipe1.setTooltip(Tooltip.create(Component.literal("Sample recipe 1")));
+
 
         List<CipherTemplate> templates = container.getBlockEntity().getCipher().getTemplates();
         var y = tabArea.getY() + 20 + 6;
@@ -962,7 +1005,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     }
                 });
             }
-            if (p.getType().equals("combo"))
+            if (p.getType().equals("combo") || p.getType().equals("combo-number"))
             {
                 var box = new ComboBox(x, y, WELLPARA_WIDTH, WELLPARA_HEIGHT, p.getComboOptions());
                 box.setLabel(p.getLabel(), p.getFlags().contains("right"));
@@ -1020,7 +1063,11 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     {
         _selectedTab = i;
         rebuildWidgets();
+        setButtonVisibilities();
+    }
 
+    private void setButtonVisibilities()
+    {
         if (_selectedTab == PAGE_ITEM_EDIT)
         {
             if (slotSelectedForTag == null)
@@ -1049,9 +1096,9 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         }
 
         for (var b : _templateButtons)
-            b.visible = i == 2;
+            b.visible = _selectedTab == 2;
         for (var b : wellParameterButtons)
-            b.visible = i == 0;
+            b.visible = _selectedTab == 0;
     }
 
     private void deleteNBTForSelectedSlotFromList(String s)
@@ -1104,6 +1151,8 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     box.setHint(p.getHint());
                 if (p.getType().equals("number")) box.setMaxLength(8);
                 else box.setMaxLength(20);
+                if (p.getTooltip() != null && !p.getTooltip().isEmpty())
+                    box.setTooltip(Tooltip.create(Component.translatableWithFallback(p.getTooltip(), p.getTooltip())));
                 editBoxes.put(p.getPath(), box);
                 box.setResponder(text -> {
                     if (!_dontFireControlUpdates)
@@ -1112,10 +1161,12 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     }
                 });
             }
-            if (p.getType().equals("combo"))
+            if (p.getType().equals("combo") || p.getType().equals("combo-number"))
             {
                 var box = new ComboBox(workArea.getX() + p.getPosX(), workArea.getY() + p.getPosY() - 3, p.getWidth(), p.getHeight(), p.getComboOptions());
                 box.setLabel(p.getLabel(), p.getFlags().contains("right"));
+                if (p.getTooltip() != null && !p.getTooltip().isEmpty())
+                    box.setTooltip(Tooltip.create(Component.translatableWithFallback(p.getTooltip(), p.getTooltip())));
                 comboBoxes.put(p.getPath(), box);
                 box.setResponder(text -> {
                     if (!_dontFireControlUpdates)
@@ -1130,6 +1181,8 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 var box = new CheckboxWithCallback(workArea.getX() + p.getPosX(), workArea.getY() + p.getPosY(), 16, 16,
                         p.getLabel(),
                         false, p.getFlags().contains("right"));
+                if (p.getTooltip() != null && !p.getTooltip().isEmpty())
+                    box.setTooltip(Tooltip.create(Component.translatableWithFallback(p.getTooltip(), p.getTooltip())));
                 checkBoxes.put(p.getPath(), box);
                 box.setResponder(text -> {
                     if (!_dontFireControlUpdates)

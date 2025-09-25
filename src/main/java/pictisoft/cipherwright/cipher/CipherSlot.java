@@ -27,8 +27,8 @@ public class CipherSlot
 {
     //private static final Container EMPTY_INVENTORY = new SimpleContainer(0);
     //private final int invSlot;
-    private final boolean large;
     private final CipherGridObject cipherobject;
+    private final CipherWell.STYLE_ENUM style;
     private boolean _dirty;
     private ItemStack ghostStack = ItemStack.EMPTY;
     private FluidStack ghostFluid = FluidStack.EMPTY;
@@ -204,6 +204,11 @@ public class CipherSlot
         parameters = new CompoundTag();
     }
 
+    public CipherWell.STYLE_ENUM getStyle()
+    {
+        return style;
+    }
+
     public enum SlotMode
     {
         ITEM, TAG, FLUID
@@ -214,7 +219,7 @@ public class CipherSlot
         //super(inventory, slotIndex, x, y); // Dummy inventory
         //this.invSlot = slotIndex;
         this.single = cipherslot.getSingle();
-        this.large = cipherslot.getLarge();
+        this.style = cipherslot.getStyle();
         this.cipherobject = cipherslot;
         //this.isInput = cipherslot instanceof CipherInput;
         this.x = cipherslot.getPosX();
@@ -358,11 +363,6 @@ public class CipherSlot
     {
         _mode = newMode;
         this.setDirty();
-    }
-
-    public boolean isLarge()
-    {
-        return large;
     }
 
     public boolean isSingle()

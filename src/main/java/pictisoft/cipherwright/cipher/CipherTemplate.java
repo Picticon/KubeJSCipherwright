@@ -2,13 +2,10 @@ package pictisoft.cipherwright.cipher;
 
 import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
-import jdk.jshell.Snippet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import pictisoft.cipherwright.util.Chatter;
-import pictisoft.cipherwright.util.JsonHelpers;
 
 import java.io.IOException;
 import java.util.*;
@@ -326,24 +323,7 @@ public class CipherTemplate extends CipherGridObject
 //          "condition": "parameter:heatRequirement:not:none",
                 if (condition.startsWith("parameter:"))
                 {
-                    var split = condition.split(":");
-                    if (split.length == 4)
-                    {
-                        var path = split[1];
-                        var bool = split[2];
-                        var compare = split[3];
-                        if (dataload.parameters.containsKey(path))
-                        {
-                            if (bool.equals("not"))
-                            {
-                                return !dataload.parameters.get(path).equals(compare);
-                            }
-                            if (bool.equals("equals"))
-                            {
-                                return dataload.parameters.get(path).equals(compare);
-                            }
-                        }
-                    }
+                    return (CipherParameter.testCondition(condition.replace("parameter:",""), dataload.parameters));
                 }
 
             }

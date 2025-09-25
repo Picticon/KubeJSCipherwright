@@ -55,13 +55,10 @@ public class JEIPlugin implements IModPlugin
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration)
     {
-        //registration.addRecipeTransferHandler(new KubeJSTableTransferHandler(), RecipeTypes.CRAFTING);
-        registration.addUniversalRecipeTransferHandler(new EncodePatternTransferHandler());
-//        registration.addRecipeTransferHandler(EssenceDistillerBlockContainer.class, ContainerRegistry.ESSENCE_DISTILLER_BLOCK_CONTAINER.get(),
-//                ESSENCE_DISTILLER_CRAFT, EssenceDistillerBlockContainer.getRecipeStart(), EssenceDistillerBlockContainer.getRecipeCount(),
-//                EssenceDistillerBlockContainer.getInventoryStart(), EssenceDistillerBlockContainer.getInventoryCount());
+        registration.addUniversalRecipeTransferHandler(new EncodePatternTransferHandler(registration.getTransferHelper()));
     }
-//    @Override
+
+    //    @Override
 //    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
 //        registration.addGhostIngredientHandler(KubeJSTableScreen.class, new CipherIngredientHandler());
 //    }
@@ -96,11 +93,11 @@ public class JEIPlugin implements IModPlugin
         IFocusFactory focusFactory = jeiRuntime.getJeiHelpers().getFocusFactory();
         IIngredientManager ingredientManager = jeiRuntime.getIngredientManager();
 
-        Optional<ITypedIngredient<ItemStack>> typed = ingredientManager.createTypedIngredient(FluidUtil.getFilledBucket(stack)); // shrug
+        Optional<ITypedIngredient<FluidStack>> typed = ingredientManager.createTypedIngredient(stack); // shrug
         if (typed.isEmpty()) return;
 
         RecipeIngredientRole role = asOutput ? RecipeIngredientRole.OUTPUT : RecipeIngredientRole.INPUT;
-        IFocus<ItemStack> focus = focusFactory.createFocus(role, typed.get());
+        IFocus<FluidStack> focus = focusFactory.createFocus(role, typed.get());
 
         recipesGui.show(Collections.singletonList(focus));
     }

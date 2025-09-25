@@ -91,7 +91,7 @@ public abstract class CipherEncoderBase
             {
                 replacement = val.equals("true") ? "true" : "false";
             }
-            if (p.getType().equals("number"))
+            if (p.getType().equals("number") || p.getType().equals("combo-number"))
             {
                 try
                 {
