@@ -17,6 +17,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+// comments go here
+
 public class Cipher
 {
     private static final Logger LOGGER = LogManager.getLogger();
