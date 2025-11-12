@@ -100,8 +100,7 @@
           "title": "Datapack",
           "fragments": [
             "{\"type\":\"<<type>>\",\"catalyst\":{type:\"block\",\"block\":<<item-id:catalyst.block>>},\"input\":<<ingredient:input>>,\"output\":<<itemstack:output>>,\"mana\":<<parameter:mana>>}"
-          ],
-          "flags": "prettyjson"
+          ]
         }
       ]
     }

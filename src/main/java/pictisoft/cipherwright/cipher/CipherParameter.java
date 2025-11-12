@@ -3,6 +3,7 @@ package pictisoft.cipherwright.cipher;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import pictisoft.cipherwright.util.GUIElementRenderer;
 import pictisoft.cipherwright.util.JsonHelpers;
@@ -11,10 +12,11 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-public class CipherParameter extends CipherGridObject
+public class CipherParameter extends CipherPathObject
 {
-    private String placeholder = "";
+    //private String placeholder = "";
     private String label = "";
     private String hint = "";
     private String defaultValue = "";
@@ -59,6 +61,54 @@ public class CipherParameter extends CipherGridObject
         return true;
     }
 
+    ///  Returns true if the slot identified by "replace" has an item or fluid with an amount > 0
+    public static boolean testPresent(String replace, ArrayList<CipherSlot> slots)
+    {
+        if (replace == null) return false;
+        var split = replace.split(":");
+        if (split.length == 1)
+        {
+            for (var slot : slots)
+            {
+                if (slot.getPath().equals(split[0]))
+                {
+                    if (slot.getItemStack().getCount() > 0) return true;
+                    if (slot.getFluidStack().getAmount() > 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /// looks for the slot with the included path, returns if there is an itemcount field
+    /// Example:  item-count:someitem
+    public static boolean testItemCount(String replace, ArrayList<CipherSlot> slots)
+    {
+        for (var slot : slots)
+        {
+            if (slot.getPath().equals(replace))
+            {
+                return slot.getCipherobject().hasCountField();
+            }
+        }
+        return false;
+    }
+
+
+    public static void clearParameters(Map<String, String> parameterValues, Cipher cipher)
+    {
+        for (var r : parameterValues.entrySet())
+        {
+            for (var p : cipher.getParameters())
+            {
+                if (Objects.equals(r.getKey(), p.getPath()))
+                {
+                    r.setValue(p.getDefaultValue());
+                }
+            }
+        }
+    }
+
     @Override
     boolean isSupportedType(String type)
     {
@@ -96,10 +146,10 @@ public class CipherParameter extends CipherGridObject
         return Component.translatableWithFallback(this.label, this.label);
     }
 
-    private String getPlaceholder()
-    {
-        return placeholder;
-    }
+    //private String getPlaceholder()
+    //{
+    //  return placeholder;
+    //}
 
     @Override
     public <T extends CipherGridObject> void readJson(T ret, @NotNull JsonObject input)
@@ -107,13 +157,27 @@ public class CipherParameter extends CipherGridObject
         super.readJson(ret, input);
         if (ret instanceof CipherParameter cw)
         {
-            if (input.has("placeholder")) cw.placeholder = input.get("placeholder").getAsString();
+//            if (input.has("placeholder")) cw.placeholder = input.get("placeholder").getAsString();
+
+            // the label for the control
             if (input.has("label")) cw.label = input.get("label").getAsString();
+
+            // the placeholder/hint inside a textbox
             if (input.has("hint")) cw.hint = input.get("hint").getAsString();
+
+            // the default value when cleared
             if (input.has("default")) cw.defaultValue = input.get("default").getAsString();
+
+            // additional text like percent chance
             if (input.has("display")) cw.display = input.get("display").getAsString();
+
+            // array of values for a combo box
             if (input.has("options")) cw.options = JsonHelpers.JsonArrayToStringArray(input.getAsJsonArray("options"));
+
+            // array of descriptions for a combo box
             if (input.has("descriptions")) cw.descriptions = JsonHelpers.JsonArrayToStringArray(input.getAsJsonArray("descriptions"));
+
+            // text to put in a tool tip for the control
             if (input.has("tooltip")) cw.tooltip = input.get("tooltip").getAsString();
         }
     }
@@ -136,9 +200,17 @@ public class CipherParameter extends CipherGridObject
         return "";
     }
 
-    public List<String> getComboOptions()
+    public List<Pair<String, String>> getComboOptions()
     {
-        return options;
+        var ret = new ArrayList<Pair<String, String>>();
+        for (var i = 0; i < options.size(); i++)
+        {
+            if (descriptions.size() == options.size())
+                ret.add(Pair.of(options.get(i), descriptions.get(i)));
+            else
+                ret.add(Pair.of(options.get(i), options.get(i)));
+        }
+        return ret;
     }
 
     public List<String> getComboDescriptions()

@@ -3,6 +3,7 @@ package pictisoft.cipherwright.util;
 import com.google.gson.*;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import pictisoft.cipherwright.cipher.CWIngredient;
 
 import java.util.*;
@@ -24,14 +25,25 @@ public class RecipeEncoder
         this.pattern = encodeRecipe(shrink ? trim(ingredientGrid) : ingredientGrid);
     }
 
-    public static JsonObject ingredientFromTag(TagKey<Item> tagitem) // no counts...
+    public static JsonObject ingredientFromTag(TagKey<Item> tagitem, int itemCount) // no counts...
     {
         JsonObject result = new JsonObject();
         result.addProperty("tag", tagitem.location().toString());
-//        if (stack.getCount() > 1)
-//        {
-//            result.addProperty("count", stack.getCount());
-//        }
+        if (itemCount > 1)
+        {
+            result.addProperty("count", itemCount);
+        }
+        return result;
+    }
+
+    public static JsonObject ingredientFromFluidTag(TagKey<Fluid> fluidtagitem, int fluidamount) // no counts...
+    {
+        JsonObject result = new JsonObject();
+        result.addProperty("fluidtag", fluidtagitem.location().toString());
+        if (fluidamount != 1000)
+        {
+            result.addProperty("amount", fluidamount);
+        }
         return result;
     }
 

@@ -20,7 +20,8 @@
       "path": "ingredients",
       "allowtag": false,
       "allowitem": false,
-      "allowfluid": true
+      "allowfluid": true,
+      "allowfluidtag": true
     }
   ],
   "outputs": [

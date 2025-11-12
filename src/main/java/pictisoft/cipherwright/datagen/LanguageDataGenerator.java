@@ -21,6 +21,8 @@ public class LanguageDataGenerator extends LanguageProvider
         add(KubeJSTableBlock.KUBEJS_TABLE_TITLE, "Cipher Wright");
         add(BlockRegistry.KUBEJS_TABLE_BLOCK.get(), "Cipher Wright");
         add(ItemRegistry.DEAD_WATER_BUCKET.get(), "Bucket of Dead Water");
+        add(ItemRegistry.DEADER_WATER_BUCKET.get(), "Bucket of Deader Water");
+        add(ItemRegistry.DEADEST_WATER_BUCKET.get(), "Bucket of Deadest Water");
 
     }
 }

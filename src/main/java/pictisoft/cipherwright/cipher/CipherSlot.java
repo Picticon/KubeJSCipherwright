@@ -3,6 +3,7 @@ package pictisoft.cipherwright.cipher;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -13,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -27,7 +29,7 @@ public class CipherSlot
 {
     //private static final Container EMPTY_INVENTORY = new SimpleContainer(0);
     //private final int invSlot;
-    private final CipherGridObject cipherobject;
+    private final CipherPathObject cipherobject;
     private final CipherWell.STYLE_ENUM style;
     private boolean _dirty;
     private ItemStack ghostStack = ItemStack.EMPTY;
@@ -36,6 +38,8 @@ public class CipherSlot
     private boolean single;
     private TagKey<Item> tagKey;
     private int tagCount;
+    private TagKey<Fluid> fluidTagKey;
+    private int fluidTagAmount;
     private int x;
     private int y;
     private int _ticker;
@@ -52,7 +56,12 @@ public class CipherSlot
         return cipherobject.getPathWithoutIndex();
     }
 
-    public CipherGridObject getCipherobject()
+    public String getPathWithIndex()
+    {
+        return cipherobject.getPathWithIndex();
+    }
+
+    public CipherPathObject getCipherobject()
     {
         return cipherobject;
     }
@@ -104,6 +113,10 @@ public class CipherSlot
             {
                 // TODO
             }
+            case FLUIDTAG:
+            {
+                // TODO
+            }
             break;
         }
         return null;
@@ -118,7 +131,13 @@ public class CipherSlot
     public boolean canBeTag()
     {
         if (cipherobject instanceof CipherWell well) if (!well.allowTag()) return false;
-        return _mode == SlotMode.ITEM && !this.getItemStack().isEmpty(); // this disables the "convert to tag" option... bad code
+        return _mode == SlotMode.ITEM && !this.getItemStack().isEmpty();
+    }
+
+    public boolean canBeFluidTag()
+    {
+        if (cipherobject instanceof CipherWell well) if (!well.allowFluidTag()) return false;
+        return _mode == SlotMode.FLUID && !this.getFluidStack().isEmpty();
     }
 
     public boolean canBeFluid()
@@ -131,6 +150,8 @@ public class CipherSlot
     {
         if (getMode() == SlotMode.ITEM) return Ingredient.of(getItemStack().copy());
         if (getMode() == SlotMode.TAG) return Ingredient.of(getTag());
+        //if (getMode() == SlotMode.FLUID) return Ingredient.of(getFluidStack());
+        //if (getMode() == SlotMode.FLUIDTAG) return Ingredient.of(getFluidTag());
         return Ingredient.EMPTY;
     }
 
@@ -138,6 +159,8 @@ public class CipherSlot
     {
         if (getMode() == SlotMode.ITEM) return CWIngredient.of(getItemStack().copy());
         if (getMode() == SlotMode.TAG) return CWIngredient.of(getTag());
+        //if (getMode() == SlotMode.FLUID) return CWIngredient.of(getFluidStack());
+        //if (getMode() == SlotMode.FLUIDTAG) return CWIngredient.of(getFluidTag());
         return CWIngredient.EMPTY;
     }
 
@@ -161,9 +184,19 @@ public class CipherSlot
         }
         if (this.getMode() == SlotMode.FLUID)
         {
-            this.getFluid().setAmount(Math.max(1, Math.min(1000, this.getFluid().getAmount() + adjustment)));
+            var max = 1000;
+            if (cipherobject instanceof CipherWell well) max = well.getMaxFluidAmount();
+            this.getFluidStack().setAmount(Math.max(1, Math.min(max, this.getFluidStack().getAmount() + adjustment)));
             this.setDirty();
-            return this.getFluid().getAmount();
+            return this.getFluidStack().getAmount();
+        }
+        if (this.getMode() == SlotMode.FLUIDTAG)
+        {
+            var max = 1000;
+            if (cipherobject instanceof CipherWell well) max = well.getMaxFluidAmount();
+            fluidTagAmount = Math.max(1, Math.min(max, fluidTagAmount + adjustment));
+            this.setDirty();
+            return fluidTagAmount;
         }
         return 0;
     }
@@ -209,9 +242,14 @@ public class CipherSlot
         return style;
     }
 
+    public boolean pathMatch(String path)
+    {
+        return getPath().equals(path) || getPathWithIndex().equals(path);
+    }
+
     public enum SlotMode
     {
-        ITEM, TAG, FLUID
+        ITEM, TAG, FLUID, FLUIDTAG
     }
 
     public CipherSlot(CipherWell cipherslot)
@@ -290,6 +328,8 @@ public class CipherSlot
         this.ghostFluid = FluidStack.EMPTY;
         this.tagKey = null;
         this.tagCount = 0;
+        this.fluidTagKey = null;
+        this.fluidTagAmount = 0;
         this.setMode(SlotMode.ITEM);
         //Chatter.chat("setitem: " + stack.toString());
         this.setDirty();
@@ -302,14 +342,25 @@ public class CipherSlot
         this.ghostStack = ItemStack.EMPTY;
         this.tagKey = null;
         this.tagCount = 0;
+        this.fluidTagKey = null;
+        this.fluidTagAmount = 0;
         this.setMode(SlotMode.FLUID);
         //Chatter.chat("setfluid: " + fluid.toString());
         this.setDirty();
     }
 
-    public void setTagKey(String string)
+    public void setFluidTagKey(TagKey<Fluid> fluidTag)
     {
-
+        if (this.cipherobject instanceof CipherWell well && !well.allowFluidTag() && fluidTag != null) return;
+        this.ghostStack = ItemStack.EMPTY;
+        this.ghostFluid = FluidStack.EMPTY;
+        this.tagKey = null;
+        this.tagCount = 0;
+        this.fluidTagKey = fluidTag;
+        this.fluidTagAmount = 1000;
+        this.setMode(SlotMode.FLUIDTAG);
+        //Chatter.chat("setfluid: " + fluid.toString());
+        this.setDirty();
     }
 
     public void setTagKey(TagKey<Item> tagKey)
@@ -317,6 +368,8 @@ public class CipherSlot
         if (this.cipherobject instanceof CipherWell well && !well.allowTag() && tagKey != null) return;
         this.ghostStack = ItemStack.EMPTY; // ^ first
         this.ghostFluid = FluidStack.EMPTY;
+        this.fluidTagKey = null;
+        this.fluidTagAmount = 0;
         setMode(SlotMode.TAG);
         this.tagKey = tagKey;
         this.tagCount = 1;
@@ -349,7 +402,7 @@ public class CipherSlot
 //        return 1;
 //    }
 
-    public FluidStack getFluid()
+    public FluidStack getFluidStack()
     {
         return this.ghostFluid;
     }
@@ -399,21 +452,32 @@ public class CipherSlot
         if (this.getMode() == SlotMode.FLUID)
         {
             var fh = new FluidHelper();
-            fh.drawFluid(gui, 16, 16, this.ghostFluid, this.x, this.y);
-            var font = Minecraft.getInstance().font;
-            gui.pose().pushPose();
-            gui.pose().translate(this.x + 8, this.y + 11, 1000);
-            gui.pose().scale(.5f, .5f, 1f);
-            var w = font.width(ghostFluid.getAmount() + "");
-            gui.pose().translate(-w / 2f, 0, 1000);
-            gui.drawString(font, ghostFluid.getAmount() + "", 0, 0, 0xffffff);
-            gui.pose().popPose();
+            var max = 1000;
+            if (this.cipherobject instanceof CipherWell well) max = well.getMaxFluidAmount();
+            renderFluidStack(gui, fh, max, ghostFluid);
+        }
+        if (this.getMode() == SlotMode.FLUIDTAG)
+        {
+            try
+            {
+                var fh = new FluidHelper();
+                var max = 1000;
+                if (this.cipherobject instanceof CipherWell well) max = well.getMaxFluidAmount();
+                var fluidLookup = Minecraft.getInstance().level.registryAccess().lookupOrThrow(Registries.FLUID);
+                var fluids = fluidLookup.getOrThrow(fluidTagKey) // returns a HolderSet<Fluid>
+                        .stream().map(Holder::value).toList();
+                var idx = (_ticker / 10) % fluids.size();
+                var fluidStack = new FluidStack(fluids.get(idx), this.fluidTagAmount);
+                renderFluidStack(gui, fh, max, fluidStack);
+            } catch (Exception ignored)
+            {
+            }
         }
         if (this.getCipherobject() instanceof CipherWell well)
         {
             for (var wp : well.getWellParameters())
             {
-                if (wp.getDisplay() != null)
+                if (wp.getDisplay() != null && !wp.getDisplay().isBlank())
                 {
                     String text = getWellParameter(wp);
                     if (wp.getDisplay().contains("percent"))
@@ -467,6 +531,19 @@ public class CipherSlot
         gui.pose().popPose();
     }
 
+    private void renderFluidStack(GuiGraphics gui, FluidHelper fh, int max, FluidStack pi_ghostFluid)
+    {
+        fh.drawFluid(gui, 16, 16, pi_ghostFluid, this.x, this.y, max);
+        var font = Minecraft.getInstance().font;
+        gui.pose().pushPose();
+        gui.pose().translate(this.x + 8, this.y + 11, 100);
+        gui.pose().scale(.5f, .5f, 1f);
+        var w = font.width(pi_ghostFluid.getAmount() + "");
+        gui.pose().translate(-w / 2f, 0, 0);
+        gui.drawString(font, pi_ghostFluid.getAmount() + "", 0, 0, 0xffffff);
+        gui.pose().popPose();
+    }
+
     private void renderItemStack(GuiGraphics gui, ItemStack itemstack)
     {
         if (!itemstack.isEmpty()) gui.renderItem(itemstack, this.x, this.y);
@@ -478,7 +555,7 @@ public class CipherSlot
     }
 
     // This handles moving the recipe JSON to the SLOT.
-    public void setItem(JsonObject json, Cipher cipher)
+    public void setItem(JsonObject json)
     {
         if (json == null)
         {
@@ -512,8 +589,11 @@ public class CipherSlot
 //            }
         } else
         {
-            var child = JsonHelpers.getNestedObject(json, cipherobject.getPathWithIndex());
-            if (child == null || child.isNull())
+            var ppath = cipherobject.getItemPath(); // in case the item is nested
+            var cpath = cipherobject.getPathWithIndex(); // for extra members
+            var child = JsonHelpers.getNestedObject(json, ppath);
+            var childmembers = JsonHelpers.getNestedObject(json, cpath);
+            if (child.isNull())
             {
                 this.setItem(ItemStack.EMPTY);
                 return;
@@ -529,7 +609,7 @@ public class CipherSlot
                     if (child.isJsonObject())
                     {
                         setslotfromjson(child.jobject);
-                        trySetWellParameters(child.jobject);
+                        trySetWellParameters(childmembers.jobject);
                     }
                 }
                 break;
@@ -538,19 +618,27 @@ public class CipherSlot
                     if (child.isJsonObject())
                     {
                         setIngredient(child.jobject);
-                        trySetWellParameters(child.jobject);
+                        trySetWellParameters(childmembers.jobject);
                     }
                 }
                 break;
             }
         }
-        if (getCipherobject().countfield != null && !getCipherobject().countfield.isEmpty())
+        // in case the count is somewhere else
+        if (getCipherobject().hasCountField())
         {
-            var t = JsonHelpers.getNestedObject(json, getCipherobject().countfield);
-            if (t.isNumber() && this.ghostStack != null) this.ghostStack.setCount((int) t.number);
+            var t = JsonHelpers.getNestedObject(json, getCipherobject().getCountPath());
+            if (t.isNumber())
+            {
+                if (this._mode == SlotMode.ITEM && this.ghostStack != null) this.ghostStack.setCount((int) t.number);
+                if (this._mode == SlotMode.TAG && this.tagKey != null) this.tagCount = (int) t.number;
+                if (this._mode == SlotMode.FLUID && this.ghostFluid != null) this.ghostFluid.setAmount((int) t.number);
+                if (this._mode == SlotMode.FLUIDTAG && this.fluidTagKey != null) this.fluidTagAmount = (int) t.number;
+            }
         }
     }
 
+    // look for additional members such as "chance"
     private void trySetWellParameters(JsonObject jobject)
     {
         if (this.getCipherobject() instanceof CipherWell well)
@@ -598,6 +686,13 @@ public class CipherSlot
         {
             var fs = ItemAndIngredientHelpers.jsonToFluidStack(json);
             this.setFluid(fs);
+        } else if (json.has("fluidTag"))
+        {
+            var ftag = json.get("fluidTag").getAsString();
+            var famount = 1000;
+            if (json.has("amount")) famount = json.get("amount").getAsInt();
+            setFluidTagKey(TagKey.create(Registries.FLUID, new ResourceLocation(ftag)));
+            fluidTagAmount = famount;
         } else if (json.has("tag") || json.has("item"))
         {
             var ig2 = Ingredient.valueFromJson(json);
@@ -617,7 +712,7 @@ public class CipherSlot
                 var tagstring = JsonHelpers.getNestedObject(jo2, "tag");
                 if (tagstring.isString())
                 {
-                    this.setTagKey(TagKey.create(Registries.ITEM, new ResourceLocation(tagstring.string)));
+                    setTagKey(TagKey.create(Registries.ITEM, new ResourceLocation(tagstring.string)));
                 }
             }
         }
@@ -656,9 +751,19 @@ public class CipherSlot
         return tagKey;
     }
 
+    public TagKey<Fluid> getFluidTag()
+    {
+        return fluidTagKey;
+    }
+
     public int getTagCount()
     {
         return tagCount;
+    }
+
+    public int getFluidTagAmount()
+    {
+        return fluidTagAmount;
     }
 
     public void saveExtra(CompoundTag tag)
@@ -671,21 +776,22 @@ public class CipherSlot
         {
             case ITEM:
                 var itemtag = new CompoundTag();
-                this.ghostStack.save(itemtag);
+                ghostStack.save(itemtag);
                 //this.getItem().save(itemtag);
                 tag.put("item", itemtag);
                 break;
             case FLUID:
                 var fluidtag = new CompoundTag();
-                this.ghostFluid.writeToNBT(fluidtag);
+                ghostFluid.writeToNBT(fluidtag);
                 tag.put("fluid", fluidtag);
                 break;
             case TAG:
-//                var tagtag = new CompoundTag();
-//                tagtag.putString("tag", this.getTag().location().toString());
-//                tag.put("tag", tagtag);
-                tag.putString("tag", this.getTag().location().toString());
-                tag.putInt("tagcount", this.tagCount);
+                tag.putString("tag", getTag().location().toString());
+                tag.putInt("tagcount", tagCount);
+                break;
+            case FLUIDTAG:
+                tag.putString("fluidtag", getFluidTag().location().toString());
+                tag.putInt("fluidtagcount", fluidTagAmount);
                 break;
         }
         if (getCipherobject() instanceof CipherWell well)
@@ -728,14 +834,28 @@ public class CipherSlot
                 this.ghostFluid = FluidStack.EMPTY;
                 this.tagKey = null;
                 this.tagCount = 0;
+                this.fluidTagKey = null;
+                this.fluidTagAmount = 0;
                 break;
             case FLUID:
                 this.ghostStack = ItemStack.EMPTY;
                 ghostFluid = FluidStack.loadFluidStackFromNBT(tag.getCompound("fluid"));
                 this.tagKey = null;
                 this.tagCount = 0;
+                this.fluidTagKey = null;
+                this.fluidTagAmount = 0;
                 break;
             case TAG:
+                this.ghostStack = ItemStack.EMPTY;
+                this.ghostFluid = FluidStack.EMPTY;
+                this.tagKey = TagKey.create(Registries.ITEM, new ResourceLocation(tag.getString("tag")));
+                this.tagCount = tag.getInt("tagcount");
+                this.fluidTagKey = null;
+                this.fluidTagAmount = 0;
+                break;
+            case FLUIDTAG:
+                this.fluidTagKey = TagKey.create(Registries.FLUID, new ResourceLocation(tag.getString("fluidtag")));
+                this.fluidTagAmount = tag.getInt("fluidtagcount");
                 this.ghostStack = ItemStack.EMPTY;
                 this.ghostFluid = FluidStack.EMPTY;
                 this.tagKey = TagKey.create(Registries.ITEM, new ResourceLocation(tag.getString("tag")));

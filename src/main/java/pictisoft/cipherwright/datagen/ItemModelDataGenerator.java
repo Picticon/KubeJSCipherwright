@@ -21,6 +21,8 @@ public class ItemModelDataGenerator extends ItemModelProvider
     protected void registerModels()
     {
         simpleItem(ItemRegistry.DEAD_WATER_BUCKET);
+        simpleItem(ItemRegistry.DEADER_WATER_BUCKET);
+        simpleItem(ItemRegistry.DEADEST_WATER_BUCKET);
     }
 
     private ItemModelBuilder simpleItem(RegistryObject<Item> item)

@@ -67,8 +67,7 @@
           "title": "Datapack",
           "fragments": [
             "{\"type\":\"<<type>>\",\"input\":{type:\"block\",\"block\":<<item-id:input.block>>},\"output\":{\"type\":\"block\",\"block\":<<item-id:output.block>>},\"weight\":<<parameter:weight>>}"
-          ],
-          "flags": "prettyjson"
+          ]
         }
       ]
     }

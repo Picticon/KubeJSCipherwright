@@ -108,13 +108,21 @@ public class ItemScrollPanel<T> extends ScrollPanel
     @Override
     protected int getContentHeight()
     {
-        return items.size() * getItemHeight();
+        return items.size() * getItemHeight()+6;
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick)
     {
-        if (this.visible) super.render(guiGraphics, mouseX, mouseY, partialTick);
+        if (this.visible)
+        {
+            super.render(guiGraphics, mouseX, mouseY, partialTick);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0,0,10);
+            guiGraphics.renderOutline(left-1, top-1, width+2, height+2, 0xff000088);
+            guiGraphics.renderOutline(left-0, top-0, width+0, height+0, 0xff0044aa);
+            guiGraphics.pose().popPose();
+        }
     }
 
     @Override
@@ -192,7 +200,7 @@ public class ItemScrollPanel<T> extends ScrollPanel
             );
             guiGraphics.pose().popPose();
         }
-        guiGraphics.renderOutline(left, top, width, height, 0xff0044ff);
+        //guiGraphics.renderOutline(left, top, width, height, 0xff0044ff);
     }
 
     private int getItemOver(double mouseX, double mouseY)

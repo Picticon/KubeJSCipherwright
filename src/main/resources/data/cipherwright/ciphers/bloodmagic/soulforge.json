@@ -1,0 +1,140 @@
+{
+  "type": "bloodmagic:soulforge",
+  "name": "Soul Forge",
+  "category": "Blood Magic",
+  "inputs": [
+    {
+      "path": "input0",
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 0,
+      "single": true
+    },
+    {
+      "path": "input1",
+      "type": "ingredient",
+      "gridx": 3,
+      "gridy": 0,
+      "single": true
+    },
+    {
+      "path": "input2",
+      "type": "ingredient",
+      "gridx": 0,
+      "gridy": 3,
+      "single": true
+    },
+    {
+      "path": "input3",
+      "type": "ingredient",
+      "gridx": 3,
+      "gridy": 3,
+      "single": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "output",
+      "type": "itemstack",
+      "gridx": 1.5,
+      "gridy": 1.5,
+      "style": "large",
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "drain",
+      "label": "Drain",
+      "type": "number",
+      "default": "10",
+      "gridx": 4,
+      "gridy": 5,
+      "gridw": 3
+    },
+    {
+      "path": "minimumDrain",
+      "label": "Min. Drain",
+      "type": "number",
+      "default": "100",
+      "gridx": 4,
+      "gridy": 6,
+      "gridw": 3
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:output>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<template:JSON>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{\"type\":\"<<type>>\""
+          ]
+        },
+        {
+          "title": "input0",
+          "condition": "present:input0",
+          "fragments": [
+            ",\"input0\":<<itemstack:input0>>"
+          ]
+        },
+        {
+          "title": "input1",
+          "condition": "present:input1",
+          "fragments": [
+            ",\"input1\":<<itemstack:input1>>"
+          ]
+        },
+        {
+          "title": "input2",
+          "condition": "present:input2",
+          "fragments": [
+            ",\"input2\":<<itemstack:input2>>"
+          ]
+        },
+        {
+          "title": "input3",
+          "condition": "present:input3",
+          "fragments": [
+            ",\"input3\":<<itemstack:input3>>"
+          ]
+        },
+        {
+          "title": "finish",
+          "fragments": [
+            ",\"output\":<<itemstack:output>>,\"drain\":<<parameter:drain>>,\"minimumDrain\":<<parameter:minimumDrain>>}"
+          ]
+        }
+      ]
+    }
+  ]
+}

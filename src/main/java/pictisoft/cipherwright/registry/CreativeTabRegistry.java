@@ -19,10 +19,12 @@ public class CreativeTabRegistry
     }
 
     public static final RegistryObject<CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("kjscw_tab", () -> CreativeModeTab.builder()//
-            .icon(() -> new ItemStack(ItemRegistry.DEAD_WATER_BUCKET.get()))//
+            .icon(() -> new ItemStack(BlockRegistry.KUBEJS_TABLE_BLOCK.get()))//
             .title(Component.translatable("creativetab.kjscw_tab"))//
             .displayItems((params, output) -> {
                 output.accept(BlockRegistry.KUBEJS_TABLE_BLOCK.get());
                 output.accept(ItemRegistry.DEAD_WATER_BUCKET.get());
+                output.accept(ItemRegistry.DEADER_WATER_BUCKET.get());
+                output.accept(ItemRegistry.DEADEST_WATER_BUCKET.get());
             }).build());
 }

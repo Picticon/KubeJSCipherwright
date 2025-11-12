@@ -29,6 +29,7 @@
       "gridy": 2,
       "allowtag": false,
       "allowfluid": true,
+      "allowfluidtag": true,
       "allowitem": false
     }
   ],

@@ -66,13 +66,13 @@ public class CipherFactory
                     {
                         for (var idx = 0; idx < coordinates.size(); idx += 2)
                         {
-                            var x = coordinates.get(idx).getAsInt() * (gridmode ? GRID_W : 1);
-                            var y = coordinates.get(idx + 1).getAsInt() * (gridmode ? GRID_H : 1);
+                            var x = coordinates.get(idx).getAsDouble() * (gridmode ? GRID_W : 1);
+                            var y = coordinates.get(idx + 1).getAsDouble() * (gridmode ? GRID_H : 1);
                             var ret = makeObject(clazz, json);
                             if (ret != null)
                             {
-                                ret.x = x;
-                                ret.y = y;
+                                ret.x = (int)Math.round(x);
+                                ret.y = (int)Math.round(y);
                                 ret.index = idx / 2;
                                 appendAndIndex(collectionArray, ret);
                             }
@@ -88,9 +88,11 @@ public class CipherFactory
                     int cols = 1;
                     if (repeat.has("cols")) cols = repeat.get("cols").getAsInt();
                     int rowspacing = 0;
-                    if (repeat.has("rowspacing")) rowspacing = repeat.get("rowspacing").getAsInt();
+                    if (repeat.has("rowspacing"))
+                        rowspacing = repeat.get("rowspacing").getAsInt();
                     int colspacing = 0;
-                    if (repeat.has("colspacing")) colspacing = repeat.get("colspacing").getAsInt();
+                    if (repeat.has("colspacing"))
+                        colspacing = repeat.get("colspacing").getAsInt();
                     var idx = 0;
                     for (var y = 0; y < rows; y++)
                         for (var x = 0; x < cols; x++)
@@ -122,7 +124,7 @@ public class CipherFactory
 
     private static <T extends CipherGridObject> void appendAndIndex(List<T> collectionArray, T ret)
     {
-        if (ret instanceof CipherWell)
+        if (ret instanceof CipherWell well)
         {
             if (collectionArray == null) collectionArray = new ArrayList<T>();
             if (ret.index < 0) // if index was already assigned, skip
@@ -130,10 +132,13 @@ public class CipherFactory
                 var idx = -1;
                 for (var ca : collectionArray)
                 {
-                    if (ca.path.equals(ret.path))
+                    if (ca instanceof CipherPathObject caa)
                     {
-                        if (ca.index < 0) ca.index = 0; // we found a solo entry, give it an index
-                        idx = Math.max(ca.index, idx);
+                        if (caa.path.equals(well.path))
+                        {
+                            if (ca.index < 0) ca.index = 0; // we found a solo entry, give it an index
+                            idx = Math.max(ca.index, idx);
+                        }
                     }
                 }
                 if (idx >= 0) ret.index = idx + 1; // append to the internal "collection" making it a scattered "array"

@@ -31,6 +31,7 @@
       "placeholder": "",
       "label": "XP",
       "type": "number",
+      "default": 0.05,
       "gridx": 3,
       "gridy": 2,
       "gridw": 3
@@ -39,6 +40,7 @@
       "path": "cookingtime",
       "placeholder": "ticks",
       "label": "Cook Time",
+      "default": 100,
       "type": "number",
       "gridx": 3,
       "gridy": 3,

@@ -46,7 +46,7 @@ import java.util.Optional;
 
 public class FluidHelper
 {
-    private final long capacity=1000;
+    private final long capacity = 1000;
     private static final int MIN_FLUID_HEIGHT = 1;
     private static final int TEXTURE_SIZE = 16;
 
@@ -56,11 +56,18 @@ public class FluidHelper
         IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(fluid);
         return renderProperties.getTintColor(ingredient);
     }
-    public long getAmount(FluidStack ingredient) {
+
+    public long getAmount(FluidStack ingredient)
+    {
         return ingredient.getAmount();
     }
 
-    public void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack, int posX, int posY)
+//    public void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack, int posX, int posY)
+//    {
+//        drawFluid(guiGraphics, width, height, fluidStack, posX, posY, 1000);
+//    }
+
+    public void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack, int posX, int posY, int maxcap)
     {
         RenderSystem.enableBlend();
         Fluid fluid = fluidStack.getFluid();
@@ -89,7 +96,9 @@ public class FluidHelper
         RenderSystem.disableBlend();
     }
 
-    private static void drawTiledSprite(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite, int posX, int posY) {
+    private static void drawTiledSprite(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount,
+            TextureAtlasSprite sprite, int posX, int posY)
+    {
         RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
         Matrix4f matrix = guiGraphics.pose().last().pose();
         setGLColorFromInt(color);
@@ -101,13 +110,16 @@ public class FluidHelper
 
         final int yStart = tiledHeight + posY;
 
-        for (int xTile = 0; xTile <= xTileCount; xTile++) {
-            for (int yTile = 0; yTile <= yTileCount; yTile++) {
+        for (int xTile = 0; xTile <= xTileCount; xTile++)
+        {
+            for (int yTile = 0; yTile <= yTileCount; yTile++)
+            {
                 int width = (xTile == xTileCount) ? xRemainder : TEXTURE_SIZE;
                 long height = (yTile == yTileCount) ? yRemainder : TEXTURE_SIZE;
                 int x = posX + (xTile * TEXTURE_SIZE);
                 int y = yStart - ((yTile + 1) * TEXTURE_SIZE);
-                if (width > 0 && height > 0) {
+                if (width > 0 && height > 0)
+                {
                     long maskTop = TEXTURE_SIZE - height;
                     int maskRight = TEXTURE_SIZE - width;
 
@@ -117,7 +129,9 @@ public class FluidHelper
         }
     }
 
-    private static void drawTextureWithMasking(Matrix4f matrix, float xCoord, float yCoord, TextureAtlasSprite textureSprite, long maskTop, long maskRight, float zLevel) {
+    private static void drawTextureWithMasking(Matrix4f matrix, float xCoord, float yCoord, TextureAtlasSprite textureSprite, long maskTop, long maskRight,
+            float zLevel)
+    {
         float uMin = textureSprite.getU0();
         float uMax = textureSprite.getU1();
         float vMin = textureSprite.getV0();
@@ -138,7 +152,8 @@ public class FluidHelper
     }
 
 
-    private static void setGLColorFromInt(int color) {
+    private static void setGLColorFromInt(int color)
+    {
         float red = (color >> 16 & 0xFF) / 255.0F;
         float green = (color >> 8 & 0xFF) / 255.0F;
         float blue = (color & 0xFF) / 255.0F;
@@ -147,7 +162,8 @@ public class FluidHelper
         RenderSystem.setShaderColor(red, green, blue, alpha);
     }
 
-    public Optional<TextureAtlasSprite> getStillFluidSprite(FluidStack fluidStack) {
+    public Optional<TextureAtlasSprite> getStillFluidSprite(FluidStack fluidStack)
+    {
         Fluid fluid = fluidStack.getFluid();
         IClientFluidTypeExtensions renderProperties = IClientFluidTypeExtensions.of(fluid);
         ResourceLocation fluidStill = renderProperties.getStillTexture(fluidStack);

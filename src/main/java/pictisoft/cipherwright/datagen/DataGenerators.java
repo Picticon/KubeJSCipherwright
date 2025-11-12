@@ -26,6 +26,7 @@ public class DataGenerators
         generator.addProvider(event.includeClient(), new BlockstateDataGenerator(output, fileHelper));
         generator.addProvider(event.includeClient(), new ItemModelDataGenerator(output, fileHelper));
         generator.addProvider(event.includeClient(), new LanguageDataGenerator(output, CipherWrightMod.MODID, "en_us"));
+        generator.addProvider(event.includeClient(), new FluidTagGen(output, provider, fileHelper));
         //generator.addProvider(event.includeClient(), new SoundDataGenerator(output, fileHelper));
 
         // Server Data

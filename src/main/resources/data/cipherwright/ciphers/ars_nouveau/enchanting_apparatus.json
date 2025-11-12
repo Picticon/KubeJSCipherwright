@@ -1,0 +1,117 @@
+{
+  "type": "ars_nouveau:enchanting_apparatus",
+  "name": "Enchanting Apparatus",
+  "category": "Ars Nouveau",
+  "inputs": [
+    {
+      "path": "reagent",
+      "type": "ingredient",
+      "gridx": 1.25,
+      "gridy": 1.25,
+      "single": true
+    },
+    {
+      "path": "pedestalItems",
+      "type": "ingredient",
+      "gridx": 0.72222,
+      "gridy": 0.5,
+      "repeat": {
+        "shape": "absolute",
+        "gridcoordinates": [
+          1.25,
+          0,
+          2.5,
+          0,
+          2.5,
+          1.25,
+          2.5,
+          2.5,
+          1.25,
+          2.5,
+          0,
+          2.5,
+          0,
+          1.25,
+          0,
+          0
+        ]
+      },
+      "single": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "output",
+      "type": "itemstack",
+      "gridx": 6,
+      "gridy": 2,
+      "style": "large",
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "sourceCost",
+      "label": "Source",
+      "type": "number",
+      "default": "0",
+      "gridx": 4,
+      "gridy": 4,
+      "gridw": 3
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "left_arrow",
+      "gridx": 4,
+      "gridy": 2
+    },
+    {
+      "type": "item",
+      "item": "minecraft:blast_furnace",
+      "gridx": 4,
+      "gridy": 0
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:output>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<snippet:JSON:Datapack>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{\"type\":\"<<type>>\",\"input\":<<ingredient:input>>,\"output\":<<item-id:result>>,\"count\":<<item-count:result>>,\"source\":<<parameter:source>>,\"pedestalItems\":<<ingredients:pedestalItems>>}"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -27,6 +27,7 @@
         {
           "path": "chance",
           "type": "number",
+          "default": 1.0,
           "label": "Chance %",
           "flags": "right",
           "display": "percent top-left"
@@ -46,7 +47,6 @@
   "parameters": [
     {
       "path": "processingTime",
-      "placeholder": "ticks",
       "label": "Proc. Time",
       "type": "number",
       "gridx": 4,

@@ -98,8 +98,7 @@
           "title": "Datapack",
           "fragments": [
             "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"output\":<<itemstacks:output>>}"
-          ],
-          "flags": "prettyjson"
+          ]
         }
       ]
     }

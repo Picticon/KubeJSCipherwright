@@ -15,6 +15,7 @@
         "cols": 3
       },
       "allowfluid": true,
+      "allowfluidtag": true,
       "allowtag": true
     }
   ],
@@ -39,7 +40,6 @@
   "parameters": [
     {
       "path": "heatRequirement",
-      "placeholder": "ticks",
       "label": "Heat",
       "type": "combo",
       "options": [

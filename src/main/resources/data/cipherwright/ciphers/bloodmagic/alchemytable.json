@@ -50,7 +50,6 @@
     {
       "path": "upgradeLevel",
       "label": "Upgrade Level",
-      "placeholder": "ticks",
       "type": "combo-number",
       "tooltip": "Required level of altar.",
       "options": [

@@ -14,7 +14,8 @@
         "rows": 3,
         "cols": 3
       },
-      "allowfluid": true
+      "allowfluid": true,
+      "allowfluidtag": true
     }
   ],
   "outputs": [
@@ -56,9 +57,9 @@
         "Heated",
         "Super Heated"
       ],
-      "gridx": 3,
+      "gridx": 2,
       "gridy": 4,
-      "gridw": 4
+      "gridw": 5
     }
   ],
   "templates": [

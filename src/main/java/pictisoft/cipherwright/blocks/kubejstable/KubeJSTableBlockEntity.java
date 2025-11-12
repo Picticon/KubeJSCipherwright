@@ -51,8 +51,9 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     public static final int CIPHER_REMOVE_NBT = 7;
     public static final int CIPHER_ADJUSTMENT = 8;
     public static final int CIPHER_CHANGE_TO_TAG = 9;
-    public static final int ORIGINAL_RECIPE_CLEAR_ON_SERVER = 10;
-    public static final int RECIPE_CLEAR = 50;
+    public static final int CIPHER_CHANGE_TO_FLUID_TAG = 10;
+    public static final int ORIGINAL_RECIPE_CLEAR_ON_SERVER = 20;
+    public static final int RECIPE_CLEAR = 40;
     public static final int SET_ITEM_FROM_JEI_DROP = 50;
     public static final int SET_FLUID_FROM_JEI_DROP = 51;
     public static final int PARAMETER_SYNC = 90;
@@ -270,23 +271,58 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     {
         return """
                 {
-                  "type": "create:deploying",
-                  "ingredients": [
+                  "type": "bloodmagic:arc",
+                  "addedoutput": [
                     {
-                      "item": "minecraft:exposed_copper"
+                      "type": {
+                        "item": "minecraft:string"
+                      },
+                      "chance": 0.5,
+                      "mainchance": 0.0
                     },
                     {
-                      "tag": "minecraft:axes"
+                      "type": {
+                        "count": 4,
+                        "item": "minecraft:netherite_scrap"
+                      },
+                      "chance": 0.0,
+                      "mainchance": 1.0
                     }
                   ],
-                  "keepHeldItem": true,
-                  "results": [
-                    {
-                      "item": "minecraft:copper_block"
-                    }
-                  ]
+                  "consumeingredient": false,
+                  "input": {
+                    "tag": "forge:cobblestone"
+                  },
+                  "inputsize": 2,
+                  "mainoutputchance": 0.0,
+                  "output": {
+                    "count": 4,
+                    "item": "minecraft:gold_ingot"
+                  },
+                  "tool": {
+                    "item": "minecraft:shears"
+                  }
                 }
                 """;
+//        return """
+//                {
+//                  "type": "create:deploying",
+//                  "ingredients": [
+//                    {
+//                      "item": "minecraft:exposed_copper"
+//                    },
+//                    {
+//                      "tag": "minecraft:axes"
+//                    }
+//                  ],
+//                  "keepHeldItem": true,
+//                  "results": [
+//                    {
+//                      "item": "minecraft:copper_block"
+//                    }
+//                  ]
+//                }
+//                """;
 //        return """
 //                {
 //                  "type": "botania:runic_altar",
@@ -372,7 +408,22 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                     }
                   ]
                 }""";
-        return sample3;
+        var sample4 = """
+                {
+                  "type": "create:compacting",
+                  "ingredients": [
+                    {
+                      "amount": 250,
+                      "fluidTag": "cipherwright:dead"
+                    }
+                  ],
+                  "results": [
+                    {
+                      "item": "minecraft:honey_block"
+                    }
+                  ]
+                }""";
+        return sample4;
     }
 
     String json3()
@@ -557,6 +608,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
             {
                 // actually clear
                 Cipher.clearSlots(this.getCipherSlots());
+                CipherParameter.clearParameters(_parameterValues, getCipher());
             }
             updateBlock();
         }
@@ -603,7 +655,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
             Optional<? extends Recipe<?>> recipe = recipeManager.byKey(recipeId);
 
             // json is the original recipe json declaration
-            if (getLevel().getServer()!=null&& getLevel().getServer() instanceof IntegratedServer clientserver)
+            if (getLevel().getServer() != null && getLevel().getServer() instanceof IntegratedServer clientserver)
             {
                 var jsonRecipeString = RecipeJsonFetcher.getRecipeJson(clientserver, recipeId);
                 if (recipe.isPresent() && jsonRecipeString != null)
@@ -632,6 +684,8 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
             JsonElement jsonRoot = JsonParser.parseString(jsonRecipeString);
             if (jsonRoot.isJsonObject())
             {
+                Cipher.clearSlots(this.getCipherSlots());
+                CipherParameter.clearParameters(_parameterValues, getCipher());
                 JsonObject json = jsonRoot.getAsJsonObject();
                 // must have the "type" or it is ignored
                 if (json.has("type"))
@@ -785,6 +839,10 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
                             break;
                         case CIPHER_CHANGE_TO_TAG:
                             r.setTagKey(TagKey.create(Registries.ITEM, new ResourceLocation(string)));
+                            updateBlock();
+                            break;
+                        case CIPHER_CHANGE_TO_FLUID_TAG:
+                            r.setFluidTagKey(TagKey.create(Registries.FLUID, new ResourceLocation(string)));
                             updateBlock();
                             break;
                     }

@@ -46,8 +46,8 @@
   "parameters": [
     {
       "path": "processingTime",
-      "placeholder": "ticks",
       "label": "Proc. Time",
+      "default": 50,
       "type": "number",
       "gridx": 4,
       "gridy": 5.5,
@@ -88,15 +88,8 @@
       "snippets": [
         {
           "title": "Datapack",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>"
-          ]
-        },
-        {
-          "title": "closing",
-          "fragments": [
-            "}"
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
           ]
         }
       ]

@@ -33,6 +33,8 @@ public class BlockstateDataGenerator extends BlockStateProvider
         onlyItem(BlockRegistry.KUBEJS_TABLE_BLOCK);
 
         registerFluid(FluidRegistry.DEAD_WATER);
+        registerFluid(FluidRegistry.DEADER_WATER);
+        registerFluid(FluidRegistry.DEADEST_WATER);
 
     }
 

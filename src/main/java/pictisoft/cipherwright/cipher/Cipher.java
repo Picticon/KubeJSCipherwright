@@ -258,11 +258,13 @@ public class Cipher
 
     public List<CipherIllustration> getIllustrations()
     {
+        if (illustrations == null) return new ArrayList<>();
         return illustrations;
     }
 
     public List<CipherParameter> getParameters()
     {
+        if (parameters == null) return new ArrayList<>();// huh?
         return parameters;
     }
 
@@ -286,18 +288,25 @@ public class Cipher
         {
             try
             {
-                slot.setItem(json, this);
+                slot.setItem(json);
             } catch (Exception e)
             {
                 //Chatter.chat(e.getMessage());
             }
         }
 
-        // load default values into parameterValues
         for (var parameter : parameters)
         {
             //Chatter.chat("handleRecipe: par:" + parameter.getPath() + "=" + parameter.tryGet(json));
-            _parameterValues.put(parameter.getPath(), parameter.tryGet(json));
+            var v = parameter.tryGet(json);
+            if (v == null || v.isBlank())
+            {
+                _parameterValues.put(parameter.getPath(), parameter.getDefaultValue());
+            } else
+            {
+                _parameterValues.put(parameter.getPath(), parameter.tryGet(json));
+            }
+            // NEED DEFAULTS IF NOT FOUND
         }
     }
 
@@ -370,7 +379,7 @@ public class Cipher
         return new RecipeEncoder(array, true);
     }
 
-//    public int getWellParameterMaximumHeight()
+    //    public int getWellParameterMaximumHeight()
 //    {
 //        var ret = 0;
 //        for (var r : getAll())

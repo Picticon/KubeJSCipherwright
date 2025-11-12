@@ -2,6 +2,7 @@ package pictisoft.cipherwright.cipher;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
 
 import java.util.ArrayList;
@@ -37,6 +38,12 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
         return encode(itemStack);
     }
 
+    @Override
+    protected String encodeFluidStack(FluidStack fluidStack)
+    {
+        return encode(fluidStack);
+    }
+
     private String encode(ItemStack itemStack)
     {
         if (itemStack.hasTag())
@@ -54,6 +61,26 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
             if (itemStack.getCount() > 1)
                 ret += itemStack.getCount() + "x ";
             ret += BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+            ret += "\"";
+            return ret;
+        }
+    }
+
+    private String encode(FluidStack fluidStack)
+    {
+        if (fluidStack.hasTag() || fluidStack.getAmount() != 1000)
+        {
+
+            var ret = "Fluid.of(";
+            ret += "\"" + BuiltInRegistries.FLUID.getKey(fluidStack.getFluid()) + "\"";
+            ret += ", " + fluidStack.getAmount();
+            ret += ", " + ItemAndIngredientHelpers.compoundTagToJson(fluidStack.getTag());
+            ret += ")";
+            return ret;
+        } else
+        {
+            var ret = "\"";
+            ret += BuiltInRegistries.FLUID.getKey(fluidStack.getFluid());
             ret += "\"";
             return ret;
         }
@@ -104,14 +131,19 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
     {
         if (slot.getMode() == CipherSlot.SlotMode.TAG)
             return "\"#" + slot.getTag().location() + "\"";
-
         if (slot.getMode() == CipherSlot.SlotMode.ITEM)
         {
             if (slot.getItemStack().isEmpty()) return null;
             return encode(slot.getItemStack());
         }
-        if (slot.getMode()==CipherSlot.SlotMode.FLUID){
-            
+        if (slot.getMode() == CipherSlot.SlotMode.FLUID)
+        {
+            return "Fluid.of('??')";
+
+        }
+        if (slot.getMode() == CipherSlot.SlotMode.FLUIDTAG)
+        {
+            return "Fluid.of('??')";
         }
         return "??";
     }

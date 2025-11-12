@@ -26,7 +26,9 @@
       "allowitem": false,
       "allowtag": false,
       "allowfluid": true,
-      "style": "bucket"
+      "allowfluidtag": true,
+      "style": "bucket",
+      "maxfluid": 32000
     }
   ],
   "outputs": [
@@ -49,6 +51,7 @@
     {
       "type": "itemstack",
       "path": "addedoutput",
+      "path:item": "type",
       "gridx": 3.5,
       "gridy": 0.5,
       "allowtag": false,
@@ -69,8 +72,7 @@
           "path": "mainchance",
           "type": "number",
           "label": "Main %",
-          "flags": "right",
-          "display": "percent top-right"
+          "flags": "right"
         }
       ]
     },
@@ -81,7 +83,8 @@
       "style": "bucket",
       "allowitem": false,
       "allowtag": false,
-      "allowfluid": true
+      "allowfluid": true,
+      "maxfluid": 32000
     }
   ],
   "parameters": [
@@ -109,22 +112,16 @@
         {
           "title": "Comment",
           "condition": "comment",
-          "fragments": [
-            "// <<description:results>>"
-          ]
+          "fragment": "// <<description:results>>"
         },
         {
           "title": "Create",
-          "fragments": [
-            "event.custom(<<template:JSON>>);"
-          ]
+          "fragment": "event.custom(<<template:JSON>>);"
         },
         {
           "title": "Delete",
           "condition": "remove",
-          "fragments": [
-            "event.remove({id:\"<<oldid>>\"});"
-          ]
+          "fragment": "event.remove({id:\"<<oldid>>\"});"
         }
       ]
     },
@@ -136,12 +133,49 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"input\":<<ingredients:input>>,\"output\":<<itemstack:output>>,",
-            "\"syphon\":<<parameter:syphon>>,",
-            "\"ticks\":<<parameter:ticks>>,",
-            "\"upgradeLevel\":<<parameter:upgradeLevel>>",
-            "}"
+            "{\"type\":\"<<type>>\"",
+            ",\"input\":<<ingredient:input>>",
+            ",\"output\":<<itemstack:output>>"
           ]
+        },
+        {
+          "title": "inputsize",
+          "condition": "item-count:input",
+          "fragment": ",\"inputsize\":<<item-count:input>>"
+        },
+        {
+          "title": "consumeingredient",
+          "condition": "parameter:consumeingredient:not:false",
+          "fragment": ",\"consumeingredient\":<<parameter:consumeingredient>>"
+        },
+        {
+          "title": "tool",
+          "condition": "present:tool",
+          "fragment": ",\"tool\":<<ingredient:tool>>"
+        },
+        {
+          "title": "inputFluid",
+          "condition": "present:inputFluid",
+          "fragment": ",\"inputFluid\":<<ingredient:inputFluid>>"
+        },
+        {
+          "title": "mainoutputchance",
+          "condition": "parameter:mainoutputchance:not:0",
+          "fragment": ",\"mainoutputchance\":<<parameter:mainoutputchance>>"
+        },
+        {
+          "title": "addedoutput",
+          "condition": "present:addedoutput",
+          "fragment": ",\"addedoutput\":<<itemstacks:addedoutput>>"
+        },
+        {
+          "title": "outputFluid",
+          "condition": "present:outputFluid",
+          "fragment": ",\"outputFluid\":<<fluidstack:outputFluid>>"
+        },
+        {
+          "title": "closing",
+          "fragment": "}"
         }
       ]
     }

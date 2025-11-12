@@ -37,7 +37,6 @@
     },
     {
       "path": "cookingtime",
-      "placeholder": "ticks",
       "label": "Cook Time",
       "type": "number",
       "gridx": 3,

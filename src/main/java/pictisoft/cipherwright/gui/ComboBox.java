@@ -4,23 +4,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public class ComboBox extends Button
 {
-    private final List<String> _options;
+    private final List<Pair<String, String>> _options;
     private int _selectedIndex = 0;
     private Consumer<String> responder;
     private Component label;
     private boolean rightSide = false;
 
-    public ComboBox(int pX, int pY, int pWidth, int pHeight, List<String> options)
+    public ComboBox(int pX, int pY, int pWidth, int pHeight, List<Pair<String, String>> options_key_value)
     {
         super(pX, pY, pWidth, pHeight, Component.literal(""), (btn) -> {
         }, Button.DEFAULT_NARRATION);
-        _options = options;
+        _options = options_key_value;
         _selectedIndex = 0;
         setText();
     }
@@ -46,17 +47,21 @@ public class ComboBox extends Button
 
     public void setValue(String value)
     {
-        if (_options.contains(value))
+        for (int i = 0; i < _options.size(); i++)
         {
-            _selectedIndex = _options.indexOf(value);
-            setText();
+            var option = _options.get(i);
+            if (option.getLeft().equals(value))
+            {
+                _selectedIndex = i;
+                setText();
+            }
         }
     }
 
     private void setText()
     {
-        this.setMessage(Component.literal(_options.get(_selectedIndex)));
-        if (responder != null) responder.accept(_options.get(_selectedIndex));
+        this.setMessage(Component.literal(_options.get(_selectedIndex).getRight()));
+        if (responder != null) responder.accept(_options.get(_selectedIndex).getLeft());
     }
 
     @Override
@@ -72,7 +77,7 @@ public class ComboBox extends Button
             {
                 xx = getX() + getWidth() + 3;
             }
-            pGuiGraphics.drawString(font, this.label, xx, getY() + getHeight() / 2-font.lineHeight/2, 0x404040, false);
+            pGuiGraphics.drawString(font, this.label, xx, getY() + getHeight() / 2 - font.lineHeight / 2, 0x404040, false);
         }
 
     }
@@ -84,7 +89,7 @@ public class ComboBox extends Button
 
     public String getValue()
     {
-        if (_selectedIndex < _options.size()) return _options.get(_selectedIndex);
+        if (_selectedIndex < _options.size()) return _options.get(_selectedIndex).getLeft();
         return "";
     }
 

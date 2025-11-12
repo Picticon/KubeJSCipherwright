@@ -79,13 +79,7 @@
           "title": "Datapack",
           "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>"
-          ]
-        },
-        {
-          "title": "closing",
-          "fragments": [
-            "}"
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
           ]
         }
       ]

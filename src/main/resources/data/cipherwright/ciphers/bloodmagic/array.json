@@ -1,0 +1,89 @@
+{
+  "type": "bloodmagic:array",
+  "name": "Array",
+  "category": "Blood Magic",
+  "inputs": [
+    {
+      "type": "ingredient",
+      "path": "baseinput",
+      "gridx": 0,
+      "gridy": 1,
+      "single": true
+    },
+    {
+      "type": "ingredient",
+      "path": "addedinput",
+      "gridx": 1,
+      "gridy": 0,
+      "single": true
+    }
+  ],
+  "outputs": [
+    {
+      "type": "itemstack",
+      "path": "output",
+      "gridx": 3,
+      "gridy": 1,
+      "style": "large",
+      "single": true,
+      "allowtag": false
+    }
+  ],
+  "parameters": [
+    {
+      "path": "texture",
+      "label": "Texture",
+      "type": "text",
+      "tooltip": "I suppose this can also be any texture you provide.",
+      "gridx": 0,
+      "gridy": 5,
+      "gridw": 7
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS Custom",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:results>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<template:JSON>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "flags": "prettyjson",
+      "snippets": [
+        {
+          "title": "Datapack",
+          "fragments": [
+            "{\"type\":\"<<type>>\",",
+            "\"baseinput\":<<ingredient:baseinput>>,",
+            "\"addedinput\":<<ingredient:addedinput>>,",
+            "\"output\":<<itemstack:output>>,",
+            "\"texture\":<<parameter:texture>>",
+            "}"
+          ]
+        }
+      ]
+    }
+  ]
+}

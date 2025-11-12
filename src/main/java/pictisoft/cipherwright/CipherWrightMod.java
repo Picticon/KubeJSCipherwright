@@ -88,6 +88,10 @@ public class CipherWrightMod
         {
             ItemBlockRenderTypes.setRenderLayer(FluidRegistry.DEAD_WATER_FLOWING.get(), RenderType.translucent());
             ItemBlockRenderTypes.setRenderLayer(FluidRegistry.DEAD_WATER_SOURCE.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(FluidRegistry.DEADER_WATER_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(FluidRegistry.DEADER_WATER_SOURCE.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(FluidRegistry.DEADEST_WATER_FLOWING.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(FluidRegistry.DEADEST_WATER_SOURCE.get(), RenderType.translucent());
         }
     }
 

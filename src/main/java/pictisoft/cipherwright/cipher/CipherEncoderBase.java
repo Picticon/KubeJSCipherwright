@@ -2,9 +2,7 @@ package pictisoft.cipherwright.cipher;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import org.jetbrains.annotations.Nullable;
-import pictisoft.cipherwright.util.Chatter;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.*;
 
@@ -29,23 +27,36 @@ public abstract class CipherEncoderBase
         return r.encodeIngredients(slots);
     }
 
-
     public static String slotToItemStack(CipherSlot slot, String format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
-        return r.encodeItemStack(r.getItemstack(slot));
+        return r.encodeItemStack(r.getItemStack(slot));
+    }
+
+    public static String slotToFluidStack(CipherSlot slot, String format, CipherTemplate.DataLoad data)
+    {
+        CipherEncoderBase r = getEncoder(format, data);
+        return r.encodeFluidStack(r.getFluidStack(slot));
     }
 
     public static String slotToItemStackCount(CipherSlot slot, String format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
-        return r.encodeItemStackCount(r.getItemstack(slot));
+        if (slot.getMode() == CipherSlot.SlotMode.ITEM)
+            return r.encodeItemStackCount(r.getItemStack(slot));
+        if (slot.getMode() == CipherSlot.SlotMode.FLUID)
+            return r.encodeFluidStackAmount(r.getFluidStack(slot));
+        if (slot.getMode() == CipherSlot.SlotMode.FLUIDTAG)
+            return r.encodeFluidTagAmount(slot.getFluidTagAmount());
+        if (slot.getMode() == CipherSlot.SlotMode.TAG)
+            return r.encodeTagItemCount(slot.getTagCount());
+        return "??";
     }
 
     public static String slotToItemStackId(CipherSlot slot, String format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
-        return r.encodeItemStackId(r.getItemstack(slot));
+        return r.encodeItemStackId(r.getItemStack(slot));
     }
 
     public static String mapToPatternKey(String format, Map<String, CWIngredient> map, CipherTemplate.DataLoad data)
@@ -119,6 +130,8 @@ public abstract class CipherEncoderBase
 
     protected abstract String encodeItemStack(ItemStack itemStack);
 
+    protected abstract String encodeFluidStack(FluidStack fluidStack);
+
     protected String encodeItemStackCount(ItemStack itemStack)
     {
         return String.valueOf(itemStack.getCount());
@@ -130,19 +143,34 @@ public abstract class CipherEncoderBase
         return "\"" + loc + "\"";
     }
 
+
+    protected String encodeFluidStackAmount(FluidStack fluidStack)
+    {
+        return String.valueOf(fluidStack.getAmount());
+    }
+
+    protected String encodeTagItemCount(int amount)
+    {
+        return String.valueOf(amount);
+    }
+    protected String encodeFluidTagAmount(int amount)
+    {
+        return String.valueOf(amount);
+    }
+
     protected abstract String encodeIngredients(List<CipherSlot> slots);
 
     protected abstract String encodePattern(String[] encoded);
 
     protected abstract String encodePatternKey(Map<String, CWIngredient> map);
 
-    protected ItemStack getItemstack(CipherSlot slot)
+    protected ItemStack getItemStack(CipherSlot slot)
     {
         if (slot != null)
         {
             if (slot.getMode() == CipherSlot.SlotMode.ITEM)
             {
-                if (slot.getCipherobject() instanceof CipherWell well)
+                if (slot.getCipherobject() instanceof CipherWell)
                 {
                     return slot.getItemStack();
                 }
@@ -151,38 +179,53 @@ public abstract class CipherEncoderBase
         return ItemStack.EMPTY;
     }
 
-    protected Ingredient getIngredient(CipherSlot slot)
+    protected FluidStack getFluidStack(CipherSlot slot)
     {
         if (slot != null)
         {
-            if (slot.getMode() == CipherSlot.SlotMode.ITEM)
+            if (slot.getMode() == CipherSlot.SlotMode.FLUID)
             {
-                if (slot.getCipherobject() instanceof CipherWell well)
+                if (slot.getCipherobject() instanceof CipherWell)
                 {
-                    return getIngredient(slot, well);
-                }
-            }
-            if (slot.getMode() == CipherSlot.SlotMode.TAG)
-            {
-                if (slot.getCipherobject() instanceof CipherWell well)
-                {
-                    return getIngredient(slot, well);
+                    return slot.getFluidStack();
                 }
             }
         }
-        return Ingredient.EMPTY;
+        return FluidStack.EMPTY;
     }
 
-    protected Ingredient getIngredient(CipherSlot slot, CipherWell well)
-    {
-        if (slot.getMode() == CipherSlot.SlotMode.ITEM)
-        {
-            return Ingredient.of(slot.getItemStack());
-        }
-        if (slot.getMode() == CipherSlot.SlotMode.TAG)
-        {
-            return Ingredient.of(slot.getTag());
-        }
-        return Ingredient.EMPTY;
-    }
+//    protected Ingredient getIngredient(CipherSlot slot)
+//    {
+//        if (slot != null)
+//        {
+//            if (slot.getMode() == CipherSlot.SlotMode.ITEM)
+//            {
+//                if (slot.getCipherobject() instanceof CipherWell well)
+//                {
+//                    return getIngredient(slot, well);
+//                }
+//            }
+//            if (slot.getMode() == CipherSlot.SlotMode.TAG)
+//            {
+//                if (slot.getCipherobject() instanceof CipherWell well)
+//                {
+//                    return getIngredient(slot, well);
+//                }
+//            }
+//        }
+//        return Ingredient.EMPTY;
+//    }
+
+//    protected Ingredient getIngredient(CipherSlot slot, CipherWell well)
+//    {
+//        if (slot.getMode() == CipherSlot.SlotMode.ITEM)
+//        {
+//            return Ingredient.of(slot.getItemStack());
+//        }
+//        if (slot.getMode() == CipherSlot.SlotMode.TAG)
+//        {
+//            return Ingredient.of(slot.getTag());
+//        }
+//        return Ingredient.EMPTY;
+//    }
 }

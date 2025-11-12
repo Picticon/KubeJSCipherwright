@@ -20,9 +20,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import pictisoft.cipherwright.CipherWrightMod;
 import pictisoft.cipherwright.cipher.*;
@@ -35,7 +37,7 @@ import java.util.*;
 
 public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContainer> implements SyncParameterTrigger.IHandleSyncParameterTrigger
 {
-    private static final int WELLPARA_TOP_MARGIN = 26;
+    private static final int WELLPARA_TOP_MARGIN = 22;
     private static final int WELLPARA_Y_ADVANCE = 18;
     private static final int WELLPARA_HEIGHT = 12;
     private static final int WELLPARA_WIDTH = 70;
@@ -309,6 +311,14 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     gui.blit(GUI_BITMAP, 0, 0, 0, 52, 4, 4, GUI_BITMAP_W, GUI_BITMAP_H);
                     RenderSystem.enableDepthTest();
                 }
+                if (slot.getMode() == CipherSlot.SlotMode.FLUIDTAG)
+                {
+                    // render tag indicator
+                    RenderSystem.disableDepthTest();
+                    gui.pose().translate(slot.getX() + 12, slot.getY() + 12, 0);
+                    gui.blit(GUI_BITMAP, 0, 0, 4, 52, 4, 4, GUI_BITMAP_W, GUI_BITMAP_H);
+                    RenderSystem.enableDepthTest();
+                }
                 gui.pose().popPose();
             }
         }
@@ -404,9 +414,15 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 }
                 if (cs.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID)
                 {
-                    var fluidStack = cs.getCipherSlot().getFluid();
+                    var fluidStack = cs.getCipherSlot().getFluidStack();
                     if (!fluidStack.isEmpty())
                         gui.renderTooltip(font, getTooltipFromContainerFluid(fluidStack), Optional.empty(), ItemStack.EMPTY, mouseX, mouseY);
+                }
+                if (cs.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUIDTAG)
+                {
+                    var tag = cs.getCipherSlot().getFluidTag();
+                    if (tag != null)
+                        gui.renderTooltip(font, getTooltipFromContainerFluidTag(tag), Optional.empty(), ItemStack.EMPTY, mouseX, mouseY);
                 }
                 if (cs.getCipherSlot().getMode() == CipherSlot.SlotMode.TAG)
                 {
@@ -428,6 +444,23 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 var tooltip = new ArrayList<Component>();
                 tooltip.add(Component.literal("Tag"));
                 tooltip.add(Component.literal("#" + cipherslotProxy.getCipherSlot().getTag().location().toString()));
+
+                return tooltip;
+            }
+        }
+        return List.of();
+    }
+
+    private List<Component> getTooltipFromContainerFluidTag(TagKey<Fluid> tag)
+    {
+        Slot hoveredSlot = getSlotUnderMouse();
+        if (hoveredSlot instanceof CipherSlotProxy cipherslotProxy)
+        {
+            if (cipherslotProxy.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUIDTAG)
+            {
+                var tooltip = new ArrayList<Component>();
+                tooltip.add(Component.literal("Fluid Tag"));
+                tooltip.add(Component.literal("#" + cipherslotProxy.getCipherSlot().getFluidTag().location().toString()));
 
                 return tooltip;
             }
@@ -567,6 +600,21 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 }
             }
             clearSelectedSlot();
+            return;
+        }
+        if (slotSelectedForTag.getCipherSlot().canBeFluidTag())
+        {
+            var tags = getTagsForFluidStack(slotSelectedForTag.getCipherSlot().getFluidStack());
+            if (!tags.isEmpty())
+            {
+                if (tags.stream().toList().size() > idx)
+                {
+                    var r = tags.stream().toList().get(idx).location().toString();
+                    //slotSelectedForTag.getCipherSlot().setTagKey(tags.stream().toList().get(idx));
+                    sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_CHANGE_TO_FLUID_TAG, slotSelectedForTag.getCipherSlot(), r);
+                }
+            }
+            clearSelectedSlot();
         }
     }
 
@@ -580,9 +628,11 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
     private void buildScrollListsForSelectedSlot()
     {
+        scrollTags.setDisabled(true);
         if (slotSelectedForTag != null)
         {
             var itemstack = slotSelectedForTag.getCipherSlot().getItemStack();
+            var fluidstack = slotSelectedForTag.getCipherSlot().getFluidStack();
             if (!itemstack.isEmpty())
             {
                 var tags = getTagsForItemStack(itemstack);
@@ -610,14 +660,51 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                     }
                 }
                 scrollNBT.setItems(arr2);
+                scrollTags.setDisabled(!slotSelectedForTag.getCipherSlot().canBeTag());
             }
-            scrollTags.setDisabled(!slotSelectedForTag.getCipherSlot().canBeTag());
+            if (!fluidstack.isEmpty())
+            {
+                var tags = getTagsForFluidStack(fluidstack);
+                var nbt = itemstack.getTag();
+                var arr = new ArrayList<String>();
+                if (!tags.isEmpty())
+                {
+                    for (var tag : tags)
+                    {
+                        arr.add(tag.location().toString());
+                    }
+                }
+                scrollTags.setItems(arr); // will clear if no available tags
+
+                var arr2 = new ArrayList<String>();
+                if (nbt != null && !nbt.isEmpty())
+                {
+                    for (var key : nbt.getAllKeys())
+                    {
+                        var n = nbt.get(key);
+                        if (n != null)
+                        {
+                            arr2.add(key + "=" + n);
+                        }
+                    }
+                }
+                scrollNBT.setItems(arr2);
+                scrollTags.setDisabled(!slotSelectedForTag.getCipherSlot().canBeFluidTag());
+            }
         } else
         {
             scrollTags.setItems(new ArrayList<>());
             scrollNBT.setItems(new ArrayList<>());
         }
 
+    }
+
+    Collection<TagKey<Fluid>> getTagsForFluidStack(FluidStack fluidStack)
+    {
+        var fluid = fluidStack.getFluid();
+        ResourceKey<Fluid> fluidKey = BuiltInRegistries.FLUID.getResourceKey(fluid).orElse(null);
+        if (fluidKey == null) return new ArrayList<>();
+        return BuiltInRegistries.FLUID.getHolderOrThrow(fluidKey).tags().toList();
     }
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers)
@@ -659,12 +746,12 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             {
                 if (JEIPlugin.getShowUses().isActiveAndMatches(mouseKey))    // U. show inputs
                 {
-                    JEIPlugin.showRecipes(proxy.getCipherSlot().getFluid(), false);
+                    JEIPlugin.showRecipes(proxy.getCipherSlot().getFluidStack(), false);
                     return true; // consumed
                 }
                 if (JEIPlugin.getShowRecipe().isActiveAndMatches(mouseKey))  // R. show outputs
                 {
-                    JEIPlugin.showRecipes(proxy.getCipherSlot().getFluid(), true);
+                    JEIPlugin.showRecipes(proxy.getCipherSlot().getFluidStack(), true);
                     return true; // consumed
                 }
             }
@@ -756,13 +843,14 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private void makeItemEditButtons()
     {
         var temp = getContainer().getBlockEntity().getCipher().getWellParameterMaximumCount() * (WELLPARA_Y_ADVANCE);
-        temp += (temp > 0 ? WELLPARA_TOP_MARGIN : 0); // top of scroll bars
+        temp += WELLPARA_TOP_MARGIN;// area for buttons
+        //temp += (temp == 0 ? WELLPARA_TOP_MARGIN : 0); // top of scroll bars
 
-        var remaining = Math.max(32, (tabArea.getHeight() - temp-6) / 2);
+        var remaining = Math.max(32, (tabArea.getHeight() - temp - 6) / 2);
         var ystack = tabArea.getY() + temp;
 
-        scrollTags = new ItemScrollPanel<>(tabArea.getWidth() - 6, remaining - 16,
-                ystack + 16, tabArea.getX(), (a) -> a);
+        scrollTags = new ItemScrollPanel<>(tabArea.getWidth() - 8, remaining - 18,
+                ystack + 17, tabArea.getX() + 1, (a) -> a);
         scrollTags.setItems(new ArrayList<>());
         scrollTags.setOnClick((idx) -> {
             setTagModeForSelectedSlotFromList(idx);
@@ -771,65 +859,92 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
         ystack += remaining;
 
-        scrollNBT = new ItemScrollPanel<>(tabArea.getWidth() - 6, remaining - 16, ystack + 16, scrollTags.getRectangle().left(), (a) -> a);
+        scrollNBT = new ItemScrollPanel<>(tabArea.getWidth() - 8, remaining - 18,
+                ystack + 17, scrollTags.getRectangle().left(),
+                (a) -> a);
         scrollNBT.setItems(new ArrayList<>());
         scrollNBT.setOnClick((idx) -> {
             //setTagModeForSelectedSlotFromList(idx);
             deleteNBTForSelectedSlotFromList(scrollNBT.getItems().get(idx));
             buildScrollListsForSelectedSlot();
         });
-        btnSubtractCount = Button.builder(Component.literal("-"), (btn) -> {
+        btnSubtractCount = new ShiftButton(
+                tabArea.getX(), tabArea.getY() + 6, 16, 16,
+                Component.literal("-"),
+                Component.literal("-10"),
+                (btn) -> {
                     if (slotSelectedForTag != null)
                     {
                         //slotSelectedForTag.getCipherSlot().adjustCount(-1);
-                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "" + (Screen.hasShiftDown() ? -10 : -1));
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(),
+                                "" + (Screen.hasShiftDown() ? -10 : -1));
                     }
-                }).bounds(tabArea.getX() + 6, tabArea.getY() + 6, 16, 16)
-                .tooltip(Tooltip.create(Component.literal("Hold [shift] to adjust by 10")))
-                .build();
+                });
 
-        btnAddCount = Button.builder(Component.literal("+"), (btn) -> {
+        btnAddCount = new ShiftButton(
+                btnSubtractCount.getX() + btnSubtractCount.getWidth() + 2, tabArea.getY() + 6, 16, 16,
+                Component.literal("+"),
+                Component.literal("+10"),
+                (btn) -> {
                     if (slotSelectedForTag != null)
                     {
                         //slotSelectedForTag.getCipherSlot().adjustCount(1);
-                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "" + (Screen.hasShiftDown() ? 10 : 1));
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(),
+                                "" + (Screen.hasShiftDown() ? 10 : 1));
                     }
-                }).bounds(btnSubtractCount.getX() + btnSubtractCount.getWidth() + 2, tabArea.getY() + 6, 16, 16)
-                .tooltip(Tooltip.create(Component.literal("Hold [shift] to adjust by 10")))
-                .build();
+                });
 
-        btnSubtractCountX10 = Button.builder(Component.literal("-10"), (btn) -> {
-            if (slotSelectedForTag != null)
-            {
-                //slotSelectedForTag.getCipherSlot().adjustCount(-1);
-                sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "-10");
-            }
-        }).bounds(btnAddCount.getX() + btnAddCount.getWidth() + 2, tabArea.getY() + 6, 25, 16).build();
+        btnSubtractCountX10 = new ShiftButton(
+                btnAddCount.getX() + btnAddCount.getWidth() + 2, tabArea.getY() + 6, 25, 16,
+                Component.literal("-10"),
+                Component.literal("-100"),
+                (btn) -> {
+                    if (slotSelectedForTag != null)
+                    {
+                        //slotSelectedForTag.getCipherSlot().adjustCount(-1);
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(),
+                                "" + (Screen.hasShiftDown() ? -100 : -10));
+                    }
+                });
 
-        btnAddCountX10 = Button.builder(Component.literal("+10"), (btn) -> {
-            if (slotSelectedForTag != null)
-            {
-                //slotSelectedForTag.getCipherSlot().adjustCount(1);
-                sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "10");
-            }
-        }).bounds(btnSubtractCountX10.getX() + btnSubtractCountX10.getWidth() + 2, tabArea.getY() + 6, 25, 16).build();
+        btnAddCountX10 = new ShiftButton(
+                btnSubtractCountX10.getX() + btnSubtractCountX10.getWidth() + 2, tabArea.getY() + 6, 25, 16,
+                Component.literal("+10"),
+                Component.literal("+100").withStyle(style -> style.withFont(new ResourceLocation("alt"))),
+                (btn) -> {
+                    if (slotSelectedForTag != null)
+                    {
+                        //slotSelectedForTag.getCipherSlot().adjustCount(1);
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(),
+                                "" + (Screen.hasShiftDown() ? 100 : 10));
+                    }
+                });
 
+        btnSubtractCountX100 = new ShiftButton(
+                btnAddCountX10.getX() + btnAddCountX10.getWidth() + 2, tabArea.getY() + 6, 32, 16,
+                Component.literal("-100"),
+                Component.literal("-1000").withStyle(style -> style.withFont(new ResourceLocation("alt"))),
+                (btn) -> {
+                    if (slotSelectedForTag != null)
+                    {
+                        //slotSelectedForTag.getCipherSlot().adjustCount(-1);
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(),
+                                "" + (Screen.hasShiftDown() ? -1000 : -100));
+                    }
+                });
 
-        btnSubtractCountX100 = Button.builder(Component.literal("-100"), (btn) -> {
-            if (slotSelectedForTag != null)
-            {
-                //slotSelectedForTag.getCipherSlot().adjustCount(-1);
-                sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "-100");
-            }
-        }).bounds(btnAddCountX10.getX() + btnAddCountX10.getWidth() + 2, tabArea.getY() + 6, 32, 16).build();
-
-        btnAddCountX100 = Button.builder(Component.literal("+100"), (btn) -> {
-            if (slotSelectedForTag != null)
-            {
-                //slotSelectedForTag.getCipherSlot().adjustCount(1);
-                sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(), "100");
-            }
-        }).bounds(btnSubtractCountX100.getX() + btnSubtractCountX100.getWidth() + 2, tabArea.getY() + 6, 32, 16).build();
+        btnAddCountX100 = new ShiftButton(
+                btnSubtractCountX100.getX() + btnSubtractCountX100.getWidth() + 2, tabArea.getY() + 6, 32, 16,
+                Component.literal("+100"),
+                Component.literal("+1000").withStyle(style -> style.withFont(new ResourceLocation("alt"))),
+                (btn) -> {
+                    if (slotSelectedForTag != null)
+                    {
+                        //slotSelectedForTag.getCipherSlot().adjustCount(1);
+                        sendIntCipherMessage(KubeJSTableBlockEntity.CIPHER_ADJUSTMENT, slotSelectedForTag.getCipherSlot(),
+                                "" + (Screen.hasShiftDown() ? 1000 : 100));
+                    }
+                });
 
     }
 
@@ -843,14 +958,14 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         var remaining = Math.max(32, (tabArea.getHeight() - 10) / 2);
         var ystack = tabArea.getY() + 6;
 
-        scrollCategory = new ItemScrollPanel<>(tabArea.getWidth() - 10, remaining - 3, ystack, tabArea.getX() + 5, (a) -> a);
+        scrollCategory = new ItemScrollPanel<>(tabArea.getWidth() - 12, remaining - 5, ystack+1, tabArea.getX() + 6, (a) -> a);
         scrollCategory.setItems(CipherJsonLoader.getSortedCipherCategoryNames());
         scrollCategory.setOnClick((idx) -> {
             scrollChildren.setItems(CipherJsonLoader.getSortedCipherChildren(CipherJsonLoader.getSortedCipherCategoryNames().get(idx)));
         });
         ystack += remaining;
 
-        scrollChildren = new ItemScrollPanel<>(tabArea.getWidth() - 10, remaining, ystack, tabArea.getX() + 5, Cipher::getName);
+        scrollChildren = new ItemScrollPanel<>(tabArea.getWidth() - 12, remaining-3, ystack+1, tabArea.getX() + 6, Cipher::getName);
         scrollChildren.setOnClick((idx) -> {
             //Chatter.chat("client sending : " + (scrollChildren.getItems()).get(idx).getRecipeTypeId().toString());
             sendIntStringMessage(KubeJSTableBlockEntity.RECIPE_TYPE_SCROLLBOX, (scrollChildren.getItems()).get(idx).getRecipeTypeId().toString());
@@ -1007,7 +1122,8 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             }
             if (p.getType().equals("combo") || p.getType().equals("combo-number"))
             {
-                var box = new ComboBox(x, y, WELLPARA_WIDTH, WELLPARA_HEIGHT, p.getComboOptions());
+                var box = new ComboBox(x, y, WELLPARA_WIDTH, WELLPARA_HEIGHT,
+                        p.getComboOptions());
                 box.setLabel(p.getLabel(), p.getFlags().contains("right"));
                 wellParameterButtons.add(box);
                 box.setResponder(text -> {
@@ -1020,9 +1136,9 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             }
             if (p.getType().equals("boolean"))
             {
-                var a = new ArrayList<String>();
-                a.add("false");
-                a.add("true");
+                var a = new ArrayList<Pair<String, String>>();
+                a.add(Pair.of("false", "False"));
+                a.add(Pair.of("true", "True"));
                 var box = new ComboBox(x, y, WELLPARA_WIDTH, WELLPARA_HEIGHT, a);
                 box.setLabel(p.getLabel(), p.getFlags().contains("right"));
                 wellParameterButtons.add(box);
@@ -1080,7 +1196,8 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
                 btnSubtractCountX100.visible = false;
             } else
             {
-                var fluidmode = slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID;
+                var fluidmode = slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUID
+                        || slotSelectedForTag.getCipherSlot().getMode() == CipherSlot.SlotMode.FLUIDTAG;
                 var multimode = !slotSelectedForTag.getCipherSlot().isSingle();
                 var by1 = (multimode || fluidmode);
                 var by10 = (multimode || fluidmode);

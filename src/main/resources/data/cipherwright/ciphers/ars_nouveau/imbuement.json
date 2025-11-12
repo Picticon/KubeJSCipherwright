@@ -6,16 +6,18 @@
     {
       "path": "input",
       "type": "ingredient",
-      "gridx": 0,
-      "gridy": 0,
+      "gridx": 2,
+      "gridy": 2,
       "single": true
     },
     {
       "path": "pedestalItems",
+      "path:item": "item",
       "type": "ingredient",
-      "gridx": 0,
-      "gridy": 2,
+      "gridx": 0.72222,
+      "gridy": 0.5,
       "repeat": {
+        "colspacing": 5,
         "shape": "array",
         "rows": 1,
         "cols": 3
@@ -25,10 +27,12 @@
   ],
   "outputs": [
     {
-      "path": "result",
+      "path": "output",
+      "path:count": "count",
       "type": "itemstack",
-      "gridx": 5,
-      "gridy": 0,
+      "gridx": 6,
+      "gridy": 2,
+      "style": "large",
       "allowtag": false
     }
   ],
@@ -37,11 +41,23 @@
       "path": "source",
       "label": "Source",
       "type": "number",
-      "default": "2000",
+      "default": "100",
       "gridx": 4,
-      "gridy": 7,
-      "gridw": 3,
-      "h": 10
+      "gridy": 4,
+      "gridw": 3
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "left_arrow",
+      "gridx": 4,
+      "gridy": 2
+    },
+    {
+      "type": "item",
+      "item": "minecraft:blast_furnace",
+      "gridx": 0,
+      "gridy": 3
     }
   ],
   "templates": [
@@ -79,7 +95,27 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"input\":<<ingredient:input>>,\"output\":<<item-id:result>>,\"count\":<<item-count:result>>,\"source\":<<parameter:source>>,\"pedestalItems\":<<ingredients:pedestalItems>>}"
+            "{\"type\":\"<<type>>\",",
+            "\"input\":<<ingredient:input>>,",
+            "\"output\":<<item-id:output>>,",
+            "\"count\":<<item-count:output>>,",
+            "\"source\":<<parameter:source>>,"
+          ]
+        },
+        {
+          "title": "itemloop",
+          "loop": "pedestalItems",
+          "fragments": [
+            "{\"item\":<<ingredient:pedestalItems[<<loop>>]>>}"
+          ],
+          "prefix": "\"pedestalItems\":[",
+          "postfix": "]",
+          "join": ","
+        },
+        {
+          "title": "closing",
+          "fragments": [
+            "}"
           ]
         }
       ]

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.fluids.FluidStack;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
 import pictisoft.cipherwright.util.RecipeEncoder;
 import pictisoft.cipherwright.util.RecipeHelper;
@@ -36,7 +37,7 @@ public class CipherEncoderJSON extends CipherEncoderBase
                 }
             } else if (slot.getMode() == CipherSlot.SlotMode.FLUID)
             {
-                var fluidstack = slot.getFluid();
+                var fluidstack = slot.getFluidStack();
                 if (!fluidstack.isEmpty())
                 {
                     json.add(appendMembers(slot, ItemAndIngredientHelpers.fluidStackToJson(fluidstack)));
@@ -46,6 +47,7 @@ public class CipherEncoderJSON extends CipherEncoderBase
         return json.toString();
     }
 
+    // adds members to the json object, such as "chance"
     private JsonObject appendMembers(CipherSlot slot, JsonObject jchild)
     {
         if (slot.getCipherobject() instanceof CipherWell well)
@@ -56,7 +58,7 @@ public class CipherEncoderJSON extends CipherEncoderBase
                 if (val == null || val.isBlank()) continue;
                 if (Objects.equals(para.getType(), "text") || Objects.equals(para.getType(), "combo"))
                     jchild.addProperty(slot.getWellMember(para), val);
-                if (Objects.equals(para.getType(), "number")|| Objects.equals(para.getType(), "combo-number"))
+                if (Objects.equals(para.getType(), "number") || Objects.equals(para.getType(), "combo-number"))
                     jchild.addProperty(slot.getWellMember(para), StringConversions.getAsFloat(val));
                 if (Objects.equals(para.getType(), "boolean"))
                     jchild.addProperty(slot.getWellMember(para), val.equals("true"));
@@ -69,6 +71,12 @@ public class CipherEncoderJSON extends CipherEncoderBase
     protected String encodeItemStack(ItemStack itemStack)
     {
         return ItemAndIngredientHelpers.itemStackToJson(itemStack).toString();
+    }
+
+    @Override
+    protected String encodeFluidStack(FluidStack fluidStack)
+    {
+        return ItemAndIngredientHelpers.fluidStackToJson(fluidStack).toString();
     }
 
 
@@ -109,14 +117,24 @@ public class CipherEncoderJSON extends CipherEncoderBase
         {
             if (sslot.getItemStack().isEmpty()) return;
             jchild = ItemAndIngredientHelpers.ingredientWithNBTToJson(Ingredient.of(sslot.getItemStack()));
+//            if (sslot.getCipherobject() instanceof CipherWell well)
+//            {
+//                if (well.hasCountField())
+//                {
+//                }
+//            }
         }
         if (sslot.getMode() == CipherSlot.SlotMode.TAG)
         {
-            jchild = RecipeEncoder.ingredientFromTag(sslot.getTag());
+            jchild = RecipeEncoder.ingredientFromTag(sslot.getTag(), sslot.getTagCount());
+        }
+        if (sslot.getMode() == CipherSlot.SlotMode.FLUIDTAG)
+        {
+            jchild = RecipeEncoder.ingredientFromFluidTag(sslot.getFluidTag(), sslot.getFluidTagAmount());
         }
         if (sslot.getMode() == CipherSlot.SlotMode.FLUID)
         {
-            jchild = ItemAndIngredientHelpers.fluidStackToJson(sslot.getFluid());
+            jchild = ItemAndIngredientHelpers.fluidStackToJson(sslot.getFluidStack());
         }
         if (jchild != null)
         {
