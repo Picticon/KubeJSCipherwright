@@ -40,7 +40,7 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:output>>"
+            "// <<description:output.block>>"
           ]
         },
         {
@@ -66,7 +66,12 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"input\":{type:\"block\",\"block\":<<item-id:input.block>>},\"output\":{\"type\":\"block\",\"block\":<<item-id:output.block>>},\"weight\":<<parameter:weight>>}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"input\":{type:\"block\",\"block\":<<item-id:input.block>>},",
+            "\"output\":{\"type\":\"block\",\"block\":<<item-id:output.block>>},",
+            "\"weight\":<<parameter:weight>>",
+            "}"
           ]
         }
       ]

@@ -43,7 +43,6 @@
       "gridx": 0,
       "gridy": 1.5
     }
-
   ],
   "parameters": [
     {
@@ -91,7 +90,10 @@
           "title": "Datapack",
           "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"ingredients\":<<ingredients:ingredients>>,",
+            "\"results\":<<itemstacks:results>>"
           ]
         },
         {

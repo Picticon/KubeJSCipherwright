@@ -112,7 +112,7 @@
         {
           "title": "Comment",
           "condition": "comment",
-          "fragment": "// <<description:results>>"
+          "fragment": "// <<description:output>>"
         },
         {
           "title": "Create",
@@ -133,7 +133,8 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\"",
+            "{",
+            "\"type\":\"<<type>>\"",
             ",\"input\":<<ingredient:input>>",
             ",\"output\":<<itemstack:output>>"
           ]

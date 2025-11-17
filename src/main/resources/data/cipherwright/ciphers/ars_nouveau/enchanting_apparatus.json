@@ -8,13 +8,16 @@
       "type": "ingredient",
       "gridx": 1.25,
       "gridy": 1.25,
-      "single": true
+      "single": true,
+      "bgitem": "ars_nouveau:enchanting_apparatus"
     },
     {
       "path": "pedestalItems",
       "type": "ingredient",
       "gridx": 0.72222,
       "gridy": 0.5,
+      "xbgitem": "ars_nouveau:pedestal",
+      "bgitem": "ars_nouveau:arcane_pedestal",
       "repeat": {
         "shape": "absolute",
         "gridcoordinates": [
@@ -67,8 +70,13 @@
       "gridy": 2
     },
     {
+      "type": "highlight",
+      "gridx": 1.25,
+      "gridy": 1.25
+    },
+    {
       "type": "item",
-      "item": "minecraft:blast_furnace",
+      "item": "ars_nouveau:enchanting_apparatus",
       "gridx": 4,
       "gridy": 0
     }
@@ -108,7 +116,14 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"input\":<<ingredient:input>>,\"output\":<<item-id:result>>,\"count\":<<item-count:result>>,\"source\":<<parameter:source>>,\"pedestalItems\":<<ingredients:pedestalItems>>}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"input\":<<ingredient:reagent>>,",
+            "\"output\":<<item-id:output>>,",
+            "\"count\":<<item-count:output>>,",
+            "\"sourceCost\":<<parameter:sourceCost>>,",
+            "\"pedestalItems\":<<ingredients:pedestalItems>>",
+            "}"
           ]
         }
       ]

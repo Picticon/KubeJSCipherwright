@@ -79,7 +79,7 @@
         {
           "title": "JSON",
           "fragments": [
-            "{\"type\":\"<<type>>\""
+            "{","\"type\":\"<<type>>\""
           ]
         },
         {
@@ -92,7 +92,7 @@
         {
           "title": "closing",
           "fragments": [
-            ",\"key\":<<key:pattern>>,\"pattern\":<<pattern:pattern>>,\"result\":<<itemstack:result>>}"
+            ",\"key\":<<key:pattern>>,","\"pattern\":<<pattern:pattern>>,","\"result\":<<itemstack:result>>","}"
           ]
         }
       ]

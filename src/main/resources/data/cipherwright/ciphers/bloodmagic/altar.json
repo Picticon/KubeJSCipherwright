@@ -56,7 +56,6 @@
     {
       "path": "upgradeLevel",
       "label": "Upgrade Level",
-      "placeholder": "ticks",
       "type": "combo-number",
       "tooltip": "Required level of altar.",
       "options": [
@@ -124,7 +123,7 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:results>>"
+            "// <<description:output>>"
           ]
         },
         {
@@ -150,9 +149,12 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"input\":<<ingredients:input>>,\"output\":<<itemstack:output>>,",
-            "\"syphon\":<<parameter:syphon>>,",
-            "\"ticks\":<<parameter:ticks>>,",
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"input\":<<ingredients:input>>,",
+            "\"output\":<<itemstack:output>>,",
+            "\"syphon\":<<parameter:altarSyphon>>,",
+            "\"consumptionRate\":<<parameter:consumptionRate>>,",
             "\"upgradeLevel\":<<parameter:upgradeLevel>>",
             "}"
           ]

@@ -76,7 +76,8 @@
           "fragments": [
             "// <<description:output>>"
           ]
-        },{
+        },
+        {
           "title": "Create",
           "fragments": [
             "event.recipes.botania.elven_trade(<<itemstacks:output>>,<<ingredients:ingredients>>);"
@@ -99,7 +100,13 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"catalyst\":{type:\"block\",\"block\":<<item-id:catalyst.block>>},\"input\":<<ingredient:input>>,\"output\":<<itemstack:output>>,\"mana\":<<parameter:mana>>}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"catalyst\":{type:\"block\",\"block\":<<item-id:catalyst.block>>},",
+            "\"input\":<<ingredient:input>>,",
+            "\"output\":<<itemstack:output>>,",
+            "\"mana\":<<parameter:mana>>",
+            "}"
           ]
         }
       ]

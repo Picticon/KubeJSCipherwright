@@ -1,5 +1,6 @@
 package pictisoft.cipherwright.blocks.kubejstable;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -49,4 +50,8 @@ public class CipherSlotProxy extends Slot
         //Chatter.chat("Should not be called!");
     }
 
+    public void draw(GuiGraphics gui)
+    {
+
+    }
 }

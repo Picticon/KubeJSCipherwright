@@ -237,6 +237,14 @@ public class CipherSlot
         parameters = new CompoundTag();
     }
 
+    public boolean isEmpty()
+    {
+        if (getMode() == SlotMode.FLUID) return this.getFluidStack().isEmpty();
+        if (getMode() == SlotMode.TAG) return this.getTag() == null;
+        if (getMode() == SlotMode.FLUIDTAG) return getFluidTag() == null;
+        return getItemStack().isEmpty();
+    }
+
     public CipherWell.STYLE_ENUM getStyle()
     {
         return style;

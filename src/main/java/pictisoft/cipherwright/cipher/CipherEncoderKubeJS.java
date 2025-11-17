@@ -148,6 +148,7 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
         return "??";
     }
 
+    // turns an array of spaces and letters into the output format.
     @Override
     protected String encodePattern(String[] encoded)
     {
@@ -166,7 +167,7 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
         var arr = new ArrayList<String>();
         for (var kvp : map.entrySet())
         {
-            arr.add("\"" + kvp.getKey() + "\":\"" + jsify(kvp.getValue().toJson().toString()) + "\"}");
+            arr.add("{\"" + kvp.getKey() + "\":" + jsify(kvp.getValue().toJson().toString()) + "}");
         }
         return "[" + String.join(",", arr) + "]";
     }

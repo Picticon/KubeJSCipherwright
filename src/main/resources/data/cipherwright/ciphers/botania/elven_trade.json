@@ -74,7 +74,8 @@
           "fragments": [
             "// <<description:output>>"
           ]
-        },{
+        },
+        {
           "title": "Create",
           "fragments": [
             "event.recipes.botania.elven_trade(<<itemstacks:output>>,<<ingredients:ingredients>>);"
@@ -97,7 +98,11 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"output\":<<itemstacks:output>>}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"ingredients\":<<ingredients:ingredients>>,",
+            "\"output\":<<itemstacks:output>>",
+            "}"
           ]
         }
       ]

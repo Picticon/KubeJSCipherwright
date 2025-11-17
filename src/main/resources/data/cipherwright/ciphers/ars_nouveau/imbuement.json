@@ -12,6 +12,7 @@
     },
     {
       "path": "pedestalItems",
+      "bgitem": "ars_nouveau:arcane_pedestal",
       "path:item": "item",
       "type": "ingredient",
       "gridx": 0.72222,
@@ -55,7 +56,7 @@
     },
     {
       "type": "item",
-      "item": "minecraft:blast_furnace",
+      "item": "ars_nouveau:imbuement_chamber",
       "gridx": 0,
       "gridy": 3
     }
@@ -95,11 +96,13 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",",
+            "{",
+            "\"type\":\"<<type>>\",",
             "\"input\":<<ingredient:input>>,",
             "\"output\":<<item-id:output>>,",
             "\"count\":<<item-count:output>>,",
-            "\"source\":<<parameter:source>>,"
+            "\"source\":<<parameter:source>>",
+            "}"
           ]
         },
         {

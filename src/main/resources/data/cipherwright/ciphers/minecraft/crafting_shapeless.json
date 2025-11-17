@@ -50,12 +50,12 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:output>>"
+            "// <<description:result>>"
           ]
         },{
           "title": "Create",
           "fragments": [
-            "event.shapeless(\"<<itemstack:result>>\", <<ingredients:ingredients>>);"
+            "event.shapeless(<<itemstack:result>>, <<ingredients:ingredients>>);"
           ]
         },
         {

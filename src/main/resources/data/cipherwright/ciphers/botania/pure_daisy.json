@@ -30,7 +30,7 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:output>>"
+            "// <<description:output.name>>"
           ]
         },
         {
@@ -56,7 +56,12 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"input\":{type:\"block\",\"block\":<<item-id:input.block>>},\"output\":{\"name\":<<item-id:output.name>>}}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"input\":{type:\"block\",",
+            "\"block\":<<item-id:input.block>>},",
+            "\"output\":{\"name\":<<item-id:output.name>>}",
+            "}"
           ]
         }
       ]

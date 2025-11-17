@@ -233,8 +233,10 @@ public class CipherTemplate extends CipherGridObject
                     default -> replacement = "'??" + placeholder + "??'";
                 }
             }
-
-            matcher.appendReplacement(result, replacement);
+            if (replacement != null)
+                matcher.appendReplacement(result, replacement);
+            else
+                Chatter.chat("Invalid replacement: " + placeholder);
         }
         matcher.appendTail(result);
         ret.append(result);
@@ -250,7 +252,7 @@ public class CipherTemplate extends CipherGridObject
                 return r.getItemStack().getHoverName().getString();
             }
         }
-        return "Unknown";
+        return "Unknown Path: (" + path + ")";
     }
 
     private String getJSON(List<CipherSlot> list)

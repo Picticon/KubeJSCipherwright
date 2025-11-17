@@ -256,6 +256,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         gui.pose().translate(leftPos, topPos, 0); // these are window aligned
         for (var slot : container.slots)
         {
+            // draw non-slots
             if (!(slot instanceof CipherSlotProxy))
             {
                 guiRenderer.drawSlotWell(gui, slot.x, slot.y);
@@ -278,6 +279,10 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             } else
             {
                 guiRenderer.drawSlotWell(gui, slot.getX(), slot.getY());
+            }
+            if (slot.getCipherobject() instanceof CipherWell well && slot.isEmpty())
+            {
+                well.drawBackGround(gui, guiRenderer);
             }
         }
         gui.pose().popPose();

@@ -97,7 +97,8 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\""
+            "{",
+            "\"type\":\"<<type>>\""
           ]
         },
         {
@@ -131,7 +132,8 @@
         {
           "title": "finish",
           "fragments": [
-            ",\"output\":<<itemstack:output>>,\"drain\":<<parameter:drain>>,\"minimumDrain\":<<parameter:minimumDrain>>}"
+            ",\"output\":<<itemstack:output>>,\"drain\":<<parameter:drain>>,\"minimumDrain\":<<parameter:minimumDrain>>",
+            "}"
           ]
         }
       ]

@@ -1,15 +1,59 @@
 package pictisoft.cipherwright.cipher;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import pictisoft.cipherwright.util.GUIElementRenderer;
 
 import java.util.ArrayList;
 
 // This class defines a "well", or something that will hold a fake Slot object
+
 public class CipherWell extends CipherPathObject
 {
+    private String BGItem;
+
+    public void drawBackGround(GuiGraphics gui, GUIElementRenderer guiRenderer)
+    {
+        if (this.getBGItem() != null)
+        {
+            var item = BuiltInRegistries.ITEM.get(new ResourceLocation(this.getBGItem()));
+            if (!item.equals(Items.AIR))
+            {
+
+                gui.pose().pushPose();
+                gui.pose().translate(getPosX(), getPosY(), 0);
+                //gui.pose().translate(8f, 8f, 0);      // -8 to adjust for the internal translation done in renderitem
+
+                gui.renderItem(new ItemStack(item, 1), 0, 0);
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+                RenderSystem.setShaderColor(1, 1, 1, 1);
+                gui.pose().translate(0, 0, 200);
+                gui.fill(0, 0, 16, 16,
+                        (int) (.7f * 255) << 24 | 0x888888);
+                gui.pose().popPose();
+            }
+        }
+    }
+
+    public String getBGItem()
+    {
+        return BGItem;
+    }
+
+    public void setBGItem(String bgItem)
+    {
+        this.BGItem = bgItem;
+    }
+
     public enum STYLE_ENUM
     {
         normal,
@@ -66,7 +110,6 @@ public class CipherWell extends CipherPathObject
     }
 
 
-
     @Override
     public int getWidth()
     {
@@ -94,6 +137,8 @@ public class CipherWell extends CipherPathObject
             if (input.has("allowfluid")) cw.allowfluid = input.get("allowfluid").getAsBoolean();
             if (input.has("allowfluidtag")) cw.allowfluidtag = input.get("allowfluidtag").getAsBoolean();
             if (input.has("allowitem")) cw.allowitem = input.get("allowitem").getAsBoolean();
+            if (input.has("bgitem")) cw.setBGItem(input.get("bgitem").getAsString());
+            //if (input.has("bgalpha")) cw.setBGAlpha(input.get("bgalpha").getAsString());
             if (input.has("members") && input.get("members").isJsonArray())
             {
                 var parray = input.get("members").getAsJsonArray();

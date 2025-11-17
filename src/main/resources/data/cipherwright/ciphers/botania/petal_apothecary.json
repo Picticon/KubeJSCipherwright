@@ -69,7 +69,12 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"output\":<<itemstack:output>>,\"reagent\":<<ingredient:reagent>>}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"ingredients\":<<ingredients:ingredients>>,",
+            "\"output\":<<itemstack:output>>,",
+            "\"reagent\":<<ingredient:reagent>>",
+            "}"
           ]
         }
       ]

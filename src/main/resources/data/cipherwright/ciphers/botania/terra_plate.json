@@ -52,7 +52,7 @@
           "title": "Comment",
           "condition": "comment",
           "fragments": [
-            "// <<description:output>>"
+            "// <<description:result>>"
           ]
         },
         {
@@ -78,7 +78,12 @@
         {
           "title": "Datapack",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"result\":<<itemstack:result>>,\"mana\":<<parameter:mana>>}"
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"ingredients\":<<ingredients:ingredients>>,",
+            "\"result\":<<itemstack:result>>,",
+            "\"mana\":<<parameter:mana>>",
+            "}"
           ]
         }
       ]
