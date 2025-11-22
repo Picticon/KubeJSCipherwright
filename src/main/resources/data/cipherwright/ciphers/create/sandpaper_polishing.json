@@ -62,11 +62,9 @@
     {
       "name": "JSON",
       "format": "json",
-      "flags": "prettyjson",
       "snippets": [
         {
           "title": "Datapack",
-          "flags": "prettyjson",
           "fragments": [
             "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"results\":<<itemstacks:results>>}"
           ]

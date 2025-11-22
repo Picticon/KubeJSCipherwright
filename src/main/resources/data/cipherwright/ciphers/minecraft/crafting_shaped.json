@@ -53,10 +53,14 @@
           "fragments": [
             "// <<description:result>>"
           ]
-        },{
+        },
+        {
           "title": "Create",
           "fragments": [
-            "event.shaped(<<itemstack:result>>, <<pattern:pattern>>, <<key:pattern>>);"
+            "event.shaped(",
+            "<<itemstack:result>>,",
+            "<<pattern:pattern>>,",
+            "<<key:pattern>>);"
           ]
         },
         {
@@ -71,13 +75,11 @@
     {
       "name": "JSON",
       "format": "json",
-      "flags": "prettyjson",
       "snippets": [
         {
           "title": "JSON",
-          "flags": "prettyjson",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"key\":<<key:pattern>>,\"pattern\":<<pattern:pattern>>,\"result\":<<itemstack:result>>}"
+            "{\"type\":\"<<type>>\",\n\"key\":<<key:pattern>>,\n\"pattern\":<<pattern:pattern>>,\n\"result\":<<itemstack:result>>}"
           ]
         }
       ]

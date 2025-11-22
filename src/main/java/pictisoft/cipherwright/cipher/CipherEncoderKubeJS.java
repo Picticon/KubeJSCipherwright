@@ -46,24 +46,25 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
 
     private String encode(ItemStack itemStack)
     {
-        if (itemStack.hasTag())
-        {
-
-            var ret = "Item.of(";
-            ret += "\"" + BuiltInRegistries.ITEM.getKey(itemStack.getItem()) + "\"";
-            ret += ", " + itemStack.getCount();
-            ret += ", " + ItemAndIngredientHelpers.compoundTagToJson(itemStack.getTag());
-            ret += ")";
-            return ret;
-        } else
-        {
-            var ret = "\"";
-            if (itemStack.getCount() > 1)
-                ret += itemStack.getCount() + "x ";
-            ret += BuiltInRegistries.ITEM.getKey(itemStack.getItem());
-            ret += "\"";
-            return ret;
-        }
+        return ItemAndIngredientHelpers.itemStackToKubeJS(itemStack, data.includeWeakNBT);
+//        if (itemStack.hasTag())
+//        {
+//
+//            var ret = "Item.of(";
+//            ret += "\"" + BuiltInRegistries.ITEM.getKey(itemStack.getItem()) + "\"";
+//            ret += ", " + itemStack.getCount();
+//            ret += ", " + ItemAndIngredientHelpers.compoundTagToJson(itemStack.getTag());
+//            ret += ")";
+//            return ret;
+//        } else
+//        {
+//            var ret = "\"";
+//            if (itemStack.getCount() > 1)
+//                ret += itemStack.getCount() + "x ";
+//            ret += BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+//            ret += "\"";
+//            return ret;
+//        }
     }
 
     private String encode(FluidStack fluidStack)
@@ -167,9 +168,9 @@ public class CipherEncoderKubeJS extends CipherEncoderBase
         var arr = new ArrayList<String>();
         for (var kvp : map.entrySet())
         {
-            arr.add("{\"" + kvp.getKey() + "\":" + jsify(kvp.getValue().toJson().toString()) + "}");
+            arr.add("\"" + kvp.getKey() + "\":" + jsify(kvp.getValue().toKubeJS(data.includeWeakNBT)));
         }
-        return "[" + String.join(",", arr) + "]";
+        return "{" + String.join(",", arr) + "}";
     }
 
 //    public String getAsIngredient(CipherSlot slot)

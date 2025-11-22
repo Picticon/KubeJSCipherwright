@@ -16,8 +16,13 @@ public class CipherTemplate extends CipherGridObject
 {
     public String name = "";
     private ArrayList<Snippet> _snippets = new ArrayList<>();
-    private String format = "json";
+    private FORMAT eformat = FORMAT.JSON;
     protected DataLoad data;
+
+    public enum FORMAT
+    {
+        JSON, KUBEJS
+    }
 
     @Override
     public <T extends CipherGridObject> void readJson(T ret, @NotNull JsonObject input)
@@ -26,7 +31,7 @@ public class CipherTemplate extends CipherGridObject
         if (ret instanceof CipherTemplate cw)
         {
             if (input.has("name")) cw.name = input.get("name").getAsString();
-            if (input.has("format")) cw.format = input.get("format").getAsString();
+            if (input.has("format")) cw.eformat = input.get("format").getAsString().equals("kubejs") ? FORMAT.KUBEJS : FORMAT.JSON;
             if (input.has("snippets"))
             {
                 var jarray = input.getAsJsonArray("snippets");
@@ -68,13 +73,20 @@ public class CipherTemplate extends CipherGridObject
             if (!tt.use(data)) continue;
 
             var string = buildSnippet(data, tt.title);
-            if (!ret.isEmpty() && format.equals("kubejs")) ret.append("\r\n");
+            //if (!ret.isEmpty() && eformat == FORMAT.KUBEJS) ret.append("\r\n");
+            ret.append("\r\n"); // always include CRLF after a snippet.
             ret.append(string);
         }
-        if (flags.contains("prettyjson"))
-        {
-            return prettyJson(ret.toString());
-        }
+//        if (data.formatCode && eformat == FORMAT.JSON)
+//        {
+//            // let the json formatter do it
+//            return prettyJson(ret.toString());
+//        }
+//        if (!data.formatCode && eformat == FORMAT.KUBEJS)
+//        {
+//            // remove cr/lf
+//            return ret.toString().replace("\n", "").replace("\r", "");
+//        }
         return ret.toString();
     }
 
@@ -124,16 +136,16 @@ public class CipherTemplate extends CipherGridObject
             for (var fragment : snippet.fragments)
             {
                 buildOneFragment(data, cipher, fragment, ret);
+                // append crlf
+                if (data.formatCode) ret.append("\r\n");
             }
         }
-        if (flags.contains("prettyjson"))
-        {
-            return prettyJson(ret.toString());
-        }
+        if (data.formatCode && eformat == FORMAT.JSON) return prettyJson(ret.toString());
         return ret.toString();
 
     }
 
+    // builds a single fragment
     private void buildOneFragment(DataLoad data, Cipher cipher, String fragment, StringBuilder ret)
     {
         Pattern pattern = Pattern.compile("<<([^>]+)>>");
@@ -152,52 +164,52 @@ public class CipherTemplate extends CipherGridObject
             if (placeholder.startsWith("parameter:"))
             {
                 var path = placeholder.replace("parameter:", "");
-                if (data.parameters.containsKey(path)) replacement = CipherEncoderBase.encodeParameter(format, path, data);
+                if (data.parameters.containsKey(path)) replacement = CipherEncoderBase.encodeParameter(eformat, path, data);
             } else if (placeholder.startsWith("key:"))
             {
                 var path = placeholder.replace("key:", "");
                 var map = data.cipher.getShapedMap(path, data.slots);
-                replacement = CipherEncoderBase.mapToPatternKey(format, map, data);
+                replacement = CipherEncoderBase.mapToPatternKey(eformat, map, data);
             } else if (placeholder.startsWith("pattern:"))
             {
                 var path = placeholder.replace("pattern:", "");
                 var encoded = data.cipher.getEncodedPattern(path, data.slots);
-                replacement = CipherEncoderBase.mapToPattern(format, encoded, data);
+                replacement = CipherEncoderBase.mapToPattern(eformat, encoded, data);
             } else if (placeholder.startsWith("ingredient:"))
             {
                 var path = placeholder.replace("ingredient:", "");
                 var slots = data.slots.stream().filter(a -> a.pathMatch(path)).toList();
-                if (!slots.isEmpty()) replacement = CipherEncoderBase.slotToIngredient(format, slots.get(0), data);
+                if (!slots.isEmpty()) replacement = CipherEncoderBase.slotToIngredient(eformat, slots.get(0), data);
             } else if (placeholder.startsWith("ingredients:"))
             {
                 var path = placeholder.replace("ingredients:", "");
                 var slots = data.slots.stream().filter(a -> a.getPath().equals(path)).toList();
-                replacement = CipherEncoderBase.slotsToIngredients(format, slots, data);
+                replacement = CipherEncoderBase.slotsToIngredients(eformat, slots, data);
             } else if (placeholder.startsWith("itemstack:"))
             {
                 var path = placeholder.replace("itemstack:", "");
                 var slot = data.slots.stream().filter(a -> a.pathMatch(path)).findFirst();
-                if (slot.isPresent()) replacement = CipherEncoderBase.slotToItemStack(slot.get(), format, data);
+                if (slot.isPresent()) replacement = CipherEncoderBase.slotToItemStack(slot.get(), eformat, data);
             } else if (placeholder.startsWith("fluidstack:"))
             {
                 var path = placeholder.replace("fluidstack:", "");
                 var slot = data.slots.stream().filter(a -> a.pathMatch(path)).findFirst();
-                if (slot.isPresent()) replacement = CipherEncoderBase.slotToFluidStack(slot.get(), format, data);
+                if (slot.isPresent()) replacement = CipherEncoderBase.slotToFluidStack(slot.get(), eformat, data);
             } else if (placeholder.startsWith("item-id:"))
             {
                 var path = placeholder.replace("item-id:", "");
                 var slot = data.slots.stream().filter(a -> a.pathMatch(path)).findFirst();
-                if (slot.isPresent()) replacement = CipherEncoderBase.slotToItemStackId(slot.get(), format, data);
+                if (slot.isPresent()) replacement = CipherEncoderBase.slotToItemStackId(slot.get(), eformat, data);
             } else if (placeholder.startsWith("item-count:"))
             {
                 var path = placeholder.replace("item-count:", "");
                 var slot = data.slots.stream().filter(a -> a.pathMatch(path)).findFirst();
-                if (slot.isPresent()) replacement = CipherEncoderBase.slotToItemStackCount(slot.get(), format, data);
+                if (slot.isPresent()) replacement = CipherEncoderBase.slotToItemStackCount(slot.get(), eformat, data);
             } else if (placeholder.startsWith("itemstacks:"))
             {
                 var path = placeholder.replace("itemstacks:", "");
                 var slots = data.slots.stream().filter(a -> a.getPath().equals(path)).toList();
-                replacement = CipherEncoderBase.slotToItemStacks(format, slots, data);
+                replacement = CipherEncoderBase.slotToItemStacks(eformat, slots, data);
             } else if (placeholder.startsWith("template:"))
             {
                 placeholder = placeholder.replace("template:", "");
@@ -240,6 +252,8 @@ public class CipherTemplate extends CipherGridObject
         }
         matcher.appendTail(result);
         ret.append(result);
+//        if (data.formatCode && eformat == FORMAT.KUBEJS)
+//            ret.append("\n");
     }
 
     // make "description:"
@@ -302,17 +316,27 @@ public class CipherTemplate extends CipherGridObject
         return null;
     }
 
+    //
+    // holds the incoming data, including settings.
+    //
     public static class DataLoad
     {
         public final boolean includeComments;
+        public final boolean includeWeakNBT;
+        public final boolean formatCode;
+        public final boolean removeRecipe;
 
-        public DataLoad(Cipher cipher, String removeId, ArrayList<CipherSlot> slots, Map<String, String> parameters, boolean includeComments)
+        public DataLoad(Cipher cipher, String removeId, ArrayList<CipherSlot> slots, Map<String, String> parameters, boolean includeComments,
+                boolean includeWeakNBT, boolean formatCode, boolean removeRecipe)
         {
             this.cipher = cipher;
             this.removeId = removeId;
             this.slots = slots;
             this.parameters = parameters;
             this.includeComments = includeComments;
+            this.includeWeakNBT = includeWeakNBT;
+            this.formatCode = formatCode;
+            this.removeRecipe = removeRecipe;
         }
 
         public String removeId = null;
@@ -377,7 +401,8 @@ public class CipherTemplate extends CipherGridObject
         {
             if (condition != null)
             {
-                if (condition.contains("remove")) return dataload.removeId != null;
+                // don't remove existing recipe if checkbox overrides
+                if (condition.contains("remove")) return dataload.removeRecipe && dataload.removeId != null;
                 if (condition.contains("comment")) return dataload.includeComments;
                 if (condition.contains("item-count:"))
                 {

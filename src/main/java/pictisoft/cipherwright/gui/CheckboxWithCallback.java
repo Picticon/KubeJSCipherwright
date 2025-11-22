@@ -50,7 +50,7 @@ public class CheckboxWithCallback extends Checkbox
         RenderSystem.enableBlend();
         slice9.drawNineSlice(pGuiGraphics, getX(), getY(), getWidth(), getHeight());
         if (this.selected())
-            pGuiGraphics.blit(GUI_BACKGROUND_SELECTED, getX() +getWidth() / 2 - 4, getY() + getHeight()/ 2 - 4, 0, 0, 8, 8, 8, 8);
+            pGuiGraphics.blit(GUI_BACKGROUND_SELECTED, getX() + getWidth() / 2 - 4, getY() + getHeight() / 2 - 4, 0, 0, 8, 8, 8, 8);
         var font = Minecraft.getInstance().font;
         var textwidth = font.width(getMessage());
         var xx = getX() - textwidth - 4;
@@ -59,7 +59,5 @@ public class CheckboxWithCallback extends Checkbox
             xx = getX() + getWidth() + 3;
         }
         pGuiGraphics.drawString(font, getMessage(), xx, getY() + getHeight() / 2 - font.lineHeight / 2, 0x404040, false);
-
     }
-
 }

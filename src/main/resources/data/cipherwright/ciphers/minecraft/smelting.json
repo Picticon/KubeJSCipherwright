@@ -95,11 +95,9 @@
     {
       "name": "JSON",
       "format": "json",
-      "flags": "prettyjson",
       "snippets": [
         {
           "title": "JSON",
-          "flags": "prettyjson",
           "fragments": [
             "{\"type\":\"<<type>>\",\"cookingtime\":<<parameter:cookingtime>>,\"experience\":<<parameter:experience>>,\"ingredient\":<<ingredient:ingredient>>,\"result\":<<itemstack:result>>}"
           ]

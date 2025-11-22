@@ -44,6 +44,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private static final int PAGE_ITEM_EDIT = 0;
     private static final int PAGE_RECIPES = 1;
     private static final int PAGE_CLIPBOARD = 2;
+    private static final int PAGE_SETTINGS = 3;
     private static final int GUI_BUTTON_W = 13;
     private static final int GUI_BUTTON_H = 13;
     private static final int GUI_CLEAR_X = 13;
@@ -84,13 +85,18 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
     private Button btnCopyOriginalRecipe;
     private Button btnPasteOriginalRecipe;
     private final int RIGHT_PANEL_WIDTH = 170;
-    private final int TAB_BUTTON_WIDTH = RIGHT_PANEL_WIDTH / 3;
+    private final int TAB_SETTINGS_WIDTH = 20;
+    private final int TAB_BUTTON_WIDTH = (RIGHT_PANEL_WIDTH - TAB_SETTINGS_WIDTH + 40) / 3;
     private FakeTabButton tabItemEdit;
     private FakeTabButton tabRecipes;
     private FakeTabButton tabClipboard;
+    private FakeTabButton tabSettings;
     private Button btnAddCount;
     private Button btnSubtractCount;
     private CheckboxWithCallback chkIncludeComments;
+    private CheckboxWithCallback chkIncludeWeakNBT;
+    private CheckboxWithCallback chkFormatCode;
+    private CheckboxWithCallback chkNeverRemove;
     private Button btnReloadJSON;
     private Button btnAddCountX10;
     private Button btnSubtractCountX10;
@@ -193,6 +199,18 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         if (chkIncludeComments != null)
         {
             chkIncludeComments.setSelected(container.getBlockEntity().areCommentsIncluded());
+        }
+        if (chkNeverRemove != null)
+        {
+            chkNeverRemove.setSelected(container.getBlockEntity().areRemoveRecipe());
+        }
+        if (chkIncludeWeakNBT != null)
+        {
+            chkIncludeWeakNBT.setSelected(container.getBlockEntity().areWeakNBTIncluded());
+        }
+        if (chkFormatCode != null)
+        {
+            chkFormatCode.setSelected(container.getBlockEntity().areCodeFormatted());
         }
     }
 
@@ -804,6 +822,7 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         this.addRenderableWidget(tabItemEdit);
         this.addRenderableWidget(tabRecipes);
         this.addRenderableWidget(tabClipboard);
+        this.addRenderableWidget(tabSettings);
 
         this.addRenderableWidget(btnClearScreen);
 
@@ -828,13 +847,20 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             addRenderableWidget(btnClearOriginalRecipe);
             addRenderableWidget(btnCopyOriginalRecipe);
             addRenderableWidget(btnPasteOriginalRecipe);
-            addRenderableWidget(chkIncludeComments);
             addRenderableWidget(btnReloadJSON);
             addRenderableWidget(btnSampleRecipe1);
             addRenderableWidget(btnSampleRecipe2);
             addRenderableWidget(btnSampleRecipe3);
             for (var b : _templateButtons)
                 addRenderableWidget(b);
+        }
+
+        if (_selectedTab == PAGE_SETTINGS)
+        {
+            addRenderableWidget(chkIncludeComments);
+            addRenderableWidget(chkFormatCode);
+            addRenderableWidget(chkIncludeWeakNBT);
+            addRenderableWidget(chkNeverRemove);
         }
 
         for (var eb : editBoxes.entrySet()) addRenderableWidget(eb.getValue());
@@ -963,14 +989,14 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         var remaining = Math.max(32, (tabArea.getHeight() - 10) / 2);
         var ystack = tabArea.getY() + 6;
 
-        scrollCategory = new ItemScrollPanel<>(tabArea.getWidth() - 12, remaining - 5, ystack+1, tabArea.getX() + 6, (a) -> a);
+        scrollCategory = new ItemScrollPanel<>(tabArea.getWidth() - 12, remaining - 5, ystack + 1, tabArea.getX() + 6, (a) -> a);
         scrollCategory.setItems(CipherJsonLoader.getSortedCipherCategoryNames());
         scrollCategory.setOnClick((idx) -> {
             scrollChildren.setItems(CipherJsonLoader.getSortedCipherChildren(CipherJsonLoader.getSortedCipherCategoryNames().get(idx)));
         });
         ystack += remaining;
 
-        scrollChildren = new ItemScrollPanel<>(tabArea.getWidth() - 12, remaining-3, ystack+1, tabArea.getX() + 6, Cipher::getName);
+        scrollChildren = new ItemScrollPanel<>(tabArea.getWidth() - 12, remaining - 3, ystack + 1, tabArea.getX() + 6, Cipher::getName);
         scrollChildren.setOnClick((idx) -> {
             //Chatter.chat("client sending : " + (scrollChildren.getItems()).get(idx).getRecipeTypeId().toString());
             sendIntStringMessage(KubeJSTableBlockEntity.RECIPE_TYPE_SCROLLBOX, (scrollChildren.getItems()).get(idx).getRecipeTypeId().toString());
@@ -1018,11 +1044,6 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         btnPasteOriginalRecipe.setTooltip(Tooltip.create(Component.literal("Paste JSON recipe from clipboard.")));
         px -= 15;
 
-        chkIncludeComments = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + tabArea.getHeight() - 32, 16, 16, Component.literal("Comments?"),
-                true, true);
-        chkIncludeComments.callback = (a) -> {
-            sendIntIntMessage(KubeJSTableBlockEntity.CHANGE_COMMENT_PARAMETER, 0);
-        };
 
         btnReloadJSON = Button.builder(Component.literal("/reload"), (btn) -> {
             if (Minecraft.getInstance().level != null)
@@ -1077,7 +1098,31 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             _templateButtons.add(b);
         }
 
-
+        // Settings
+        chkIncludeComments = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + 16, 16, 16, Component.literal("Comments?"),
+                true, true);
+        chkIncludeComments.setTooltip(Tooltip.create(Component.literal("Inserts comments into code.")));
+        chkIncludeComments.callback = (a) -> {
+            sendIntIntMessage(KubeJSTableBlockEntity.CHANGE_COMMENT_PARAMETER, 0);
+        };
+        chkIncludeWeakNBT = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + 36, 16, 16, Component.literal("Weak NBT?"),
+                true, true);
+        chkIncludeWeakNBT.setTooltip(Tooltip.create(Component.literal("Appends .weakNBT() for items with NBT data.")));
+        chkIncludeWeakNBT.callback = (a) -> {
+            sendIntIntMessage(KubeJSTableBlockEntity.CHANGE_WEAKNBT_PARAMETER, 0);
+        };
+        chkFormatCode = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + 56, 16, 16, Component.literal("Format Code?"),
+                true, true);
+        chkFormatCode.setTooltip(Tooltip.create(Component.literal("Formats code when possible. Includes CRLF and spacing. Avoids single lines.")));
+        chkFormatCode.callback = (a) -> {
+            sendIntIntMessage(KubeJSTableBlockEntity.CHANGE_FORMATTING_PARAMETER, 0);
+        };
+        chkNeverRemove = new CheckboxWithCallback(tabArea.getX() + 6, tabArea.getY() + 76, 16, 16, Component.literal("Add Remove Code?"),
+                true, true);
+        chkNeverRemove.setTooltip(Tooltip.create(Component.literal("Add code to remove an existing recipe when possible.")));
+        chkNeverRemove.callback = (a) -> {
+            sendIntIntMessage(KubeJSTableBlockEntity.CHANGE_REMOVERECIPE_PARAMETER, 0);
+        };
     }
 
     private void makeWorkareaButtons()
@@ -1163,21 +1208,27 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
     private void makeTabButtons()
     {
-        tabItemEdit = new FakeTabButton(tabArea.getX(), tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Item"), (a) -> {
+        tabItemEdit = new FakeTabButton(tabArea.getX()-40, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Item"), (a) -> {
             this.setSelectedTab(PAGE_ITEM_EDIT);
         });
         tabItemEdit.setSelected(_selectedTab == PAGE_ITEM_EDIT);
 
-        tabRecipes = new FakeTabButton(tabArea.getX() + TAB_BUTTON_WIDTH, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Recipe"), (a) -> {
+        tabRecipes = new FakeTabButton(tabArea.getX()-40 + TAB_BUTTON_WIDTH, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Recipe"), (a) -> {
             this.setSelectedTab(PAGE_RECIPES);
         });
         tabRecipes.setSelected(_selectedTab == PAGE_RECIPES);
 
-        tabClipboard = new FakeTabButton(tabArea.getX() + TAB_BUTTON_WIDTH * 2, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Clipboard"),
+        tabClipboard = new FakeTabButton(tabArea.getX()-40 + TAB_BUTTON_WIDTH * 2, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Clipboard"),
                 (a) -> {
                     this.setSelectedTab(PAGE_CLIPBOARD);
                 });
         tabClipboard.setSelected(_selectedTab == PAGE_CLIPBOARD);
+
+        tabSettings = new FakeTabButton(tabArea.getX()-40 + TAB_BUTTON_WIDTH * 3, tabArea.getY() - 20, TAB_SETTINGS_WIDTH, 20, Component.literal("?"),
+                (a) -> {
+                    this.setSelectedTab(PAGE_SETTINGS);
+                });
+        tabSettings.setSelected(_selectedTab == PAGE_SETTINGS);
     }
 
     private void setSelectedTab(int i)

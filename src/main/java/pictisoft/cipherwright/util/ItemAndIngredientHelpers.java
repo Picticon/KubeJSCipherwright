@@ -8,12 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemAndIngredientHelpers
@@ -276,5 +279,119 @@ public class ItemAndIngredientHelpers
             return new FluidStack(flu, amount);
         }
         return FluidStack.EMPTY;
+    }
+
+    public static void quoteAndEscapeForJS(StringBuilder stringBuilder, String string)
+    {
+        int start = stringBuilder.length();
+        stringBuilder.append(' ');
+        char c = 0;
+
+        for (int i = 0; i < string.length(); ++i) {
+            char d = string.charAt(i);
+            if (d == '\\') {
+                stringBuilder.append('\\');
+            } else if (d == '"' || d == '\'') {
+                if (c == 0) {
+                    c = d == '\'' ? '"' : '\'';
+                }
+
+                if (c == d) {
+                    stringBuilder.append('\\');
+                }
+            }
+
+            stringBuilder.append(d);
+        }
+
+        if (c == 0) {
+            c = '\'';
+        }
+
+        stringBuilder.setCharAt(start, c);
+        stringBuilder.append(c);
+    }
+
+    public static String itemStackToKubeJS(ItemStack itemStack, boolean weaknbt)
+    {
+        var count = itemStack.getCount();
+        var hasNbt = itemStack.hasTag();
+        var loc = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
+
+        var builder = new StringBuilder();
+        if (count > 1 && !hasNbt)
+        {
+            builder.append('\'');
+            builder.append(count);
+            builder.append("x ");
+            builder.append(loc);
+            builder.append('\'');
+        } else if (hasNbt)
+        {
+            builder.append("Item.of('");
+            builder.append(loc);
+            builder.append('\'');
+            List<Pair<String, Integer>> enchants = null;
+
+            if (count > 1)
+            {
+                builder.append(", ");
+                builder.append(count);
+            }
+
+            var t = itemStack.getTag();
+
+            if (t != null && !t.isEmpty())
+            {
+                var key = itemStack.getItem() == Items.ENCHANTED_BOOK ? "StoredEnchantments" : "Enchantments";
+
+                if (t.contains(key, 9))
+                {
+                    var l = t.getList(key, 10);
+                    enchants = new ArrayList<>(l.size());
+
+                    for (var i = 0; i < l.size(); i++)
+                    {
+                        var t1 = l.getCompound(i);
+                        enchants.add(Pair.of(t1.getString("id"), t1.getInt("lvl")));
+                    }
+
+                    t = t.copy();
+                    t.remove(key);
+
+                    if (t.isEmpty())
+                    {
+                        t = null;
+                    }
+                }
+            }
+            if (t != null)
+            {
+                builder.append(", ");
+                ItemAndIngredientHelpers.quoteAndEscapeForJS(builder, t.toString());
+            }
+
+            builder.append(')');
+
+            if (enchants != null)
+            {
+                for (var e : enchants)
+                {
+                    builder.append(".enchant('");
+                    builder.append(e.getKey());
+                    builder.append("', ");
+                    builder.append(e.getValue());
+                    builder.append(')');
+                }
+            }
+            if (weaknbt) builder.append(".weakNBT()");
+        } else
+        {
+            builder.append('\'');
+            builder.append(loc);
+            builder.append('\'');
+        }
+
+        return builder.toString();
     }
 }

@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "name": "Shapeless 3x3" ,
+  "name": "Shapeless 3x3",
   "category": "Minecraft",
   "inputs": [
     {
@@ -52,10 +52,13 @@
           "fragments": [
             "// <<description:result>>"
           ]
-        },{
+        },
+        {
           "title": "Create",
           "fragments": [
-            "event.shapeless(<<itemstack:result>>, <<ingredients:ingredients>>);"
+            "event.shapeless(",
+            "<<itemstack:result>>,",
+            "<<ingredients:ingredients>>);"
           ]
         },
         {
@@ -70,11 +73,9 @@
     {
       "name": "JSON",
       "format": "json",
-      "flags": "prettyjson",
       "snippets": [
         {
           "title": "JSON",
-          "flags": "prettyjson",
           "fragments": [
             "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"result\":<<itemstack:result>>}"
           ]
@@ -82,5 +83,4 @@
       ]
     }
   ]
-
 }

@@ -84,7 +84,6 @@
     {
       "name": "JSON",
       "format": "json",
-      "flags": "prettyjson",
       "snippets": [
         {
           "title": "Datapack",

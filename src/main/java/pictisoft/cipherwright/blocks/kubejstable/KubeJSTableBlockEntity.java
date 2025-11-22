@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -59,7 +58,11 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     public static final int PARAMETER_SYNC = 90;
     public static final int RECIPE_TYPE_SCROLLBOX = 99;
     public static final int CHANGE_COMMENT_PARAMETER = 199;
+    public static final int CHANGE_WEAKNBT_PARAMETER = 198;
+    public static final int CHANGE_FORMATTING_PARAMETER = 197;
+    public static final int CHANGE_REMOVERECIPE_PARAMETER = 196;
     public static final int HANDLE_JSON_AS_RECIPE = 599;
+    //public static final int CHANGE_SETTING_BASE=170;
 
     public static final int RUN_COMMAND = 1000;
     public static final int RUN_COMMAND_RELOAD = 0;
@@ -71,6 +74,9 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     private ResourceLocation _recipeTypeID; // SYNCED // found cipher
     private Map<String, String> _parameterValues = new LinkedHashMap<>(); // SYNCED // the text boxes containing custom values
     private boolean _includeComments;
+    private boolean _includeWeakNBT;
+    private boolean _formatCode;
+    private boolean _removeRecipe;
     // #END_SYNCED_VALUES
 
     public KubeJSTableBlockEntity(BlockPos pPos, BlockState pState)
@@ -200,6 +206,18 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
         {
             _includeComments = tag.getBoolean("includeComments");
         }
+        if (tag.contains("includeWeakNBT"))
+        {
+            _includeWeakNBT = tag.getBoolean("includeWeakNBT");
+        }
+        if (tag.contains("formatCode"))
+        {
+            _formatCode = tag.getBoolean("formatCode");
+        }
+        if (tag.contains("removeRecipe"))
+        {
+            _removeRecipe = tag.getBoolean("removeRecipe");
+        }
     }
 
     // This is to save to disk, but is also used for update packets
@@ -227,6 +245,9 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
         }
         tag.put("cipherParameters", mapTag);
         tag.putBoolean("includeComments", _includeComments);
+        tag.putBoolean("includeWeakNBT", _includeWeakNBT);
+        tag.putBoolean("formatCode", _formatCode);
+        tag.putBoolean("removeRecipe", _removeRecipe);
     }
 
     // server::getUpdatePacket() -> server::getUpdateTag() -> client::onDataPacket() -> client::handleUpdateTag
@@ -589,6 +610,21 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
             this._includeComments = !this._includeComments;
             updateBlock();
         }
+        if (controlId == CHANGE_WEAKNBT_PARAMETER)
+        {
+            this._includeWeakNBT = !this._includeWeakNBT;
+            updateBlock();
+        }
+        if (controlId == CHANGE_FORMATTING_PARAMETER)
+        {
+            this._formatCode = !this._formatCode;
+            updateBlock();
+        }
+        if (controlId == CHANGE_REMOVERECIPE_PARAMETER)
+        {
+            this._removeRecipe = !this._removeRecipe;
+            updateBlock();
+        }
         if (controlId == ORIGINAL_RECIPE_CLEAR_ON_SERVER)
         {
             this.setOriginalRecipe(null);
@@ -772,7 +808,7 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
         // send to clipboard
 
         t.clipboard(new CipherTemplate.DataLoad(getCipher(), _originalRecipeID == null ? null : _originalRecipeID.toString(), _slots, _parameterValues,
-                _includeComments));
+                _includeComments, _includeWeakNBT, _formatCode, _removeRecipe));
     }
 
     @Override
@@ -857,6 +893,21 @@ public class KubeJSTableBlockEntity extends BlockEntity implements MenuProvider,
     public boolean areCommentsIncluded()
     {
         return _includeComments;
+    }
+
+    public boolean areWeakNBTIncluded()
+    {
+        return _includeWeakNBT;
+    }
+
+    public boolean areCodeFormatted()
+    {
+        return _formatCode;
+    }
+
+    public boolean areRemoveRecipe()
+    {
+        return _removeRecipe;
     }
 
 }

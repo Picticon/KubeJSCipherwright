@@ -1,43 +1,56 @@
 {
-  "type": "minecraft:stonecutting",
-  "name": "Stonecutting",
+  "type": "minecraft:smithing_transform",
+  "name": "Smithing Transform",
   "category": "Minecraft",
-  "padtop": 8,
-  "padbottom": 8,
-  "padleft": 8,
-  "padright": 8,
+  "padtop": 12,
+  "padbottom": 12,
+  "padleft": 12,
+  "padright": 12,
   "inputs": [
     {
       "type": "ingredient",
+      "path": "template",
       "gridx": 0,
       "gridy": 0,
-      "single": true,
-      "path": "ingredient"
+      "single": true
+    },
+    {
+      "type": "ingredient",
+      "path": "base",
+      "gridx": 1,
+      "gridy": 0,
+      "single": true
+    },
+    {
+      "type": "ingredient",
+      "path": "addition",
+      "gridx": 2,
+      "gridy": 0,
+      "single": true
     }
   ],
   "outputs": [
     {
       "type": "itemstack",
-      "gridx": 3,
+      "path": "result",
+      "gridx": 4,
       "gridy": 0,
       "style": "large",
-      "path": "result",
-      "path:count": "count"
+      "single": true,
+      "allowtag": false
     }
   ],
   "illustrations": [
     {
       "type": "left_arrow",
-      "gridx": 1.2,
+      "gridx": 3,
       "gridy": 0
     },
     {
       "type": "item",
-      "item": "minecraft:stonecutter",
-      "scale": 1,
-      "alpha": 1,
-      "gridx": 6,
-      "gridy": 0
+      "item": "minecraft:smithing_table",
+      "gridx": 3,
+      "gridy": 1
     }
   ],
   "templates": [
@@ -55,7 +68,7 @@
         {
           "title": "Create",
           "fragments": [
-            "event.stonecutting(<<itemstack:result>>, <<ingredient:ingredient>>);"
+            "event.smithing(<<itemstack:result>>, <<ingredient:template>>, <<ingredient:base>>, <<ingredient:addition>>);"
           ]
         },
         {
@@ -74,7 +87,12 @@
         {
           "title": "JSON",
           "fragments": [
-            "{\"type\":\"<<type>>\",\"count\":<<item-count:result>>,\"ingredient\":<<ingredient:ingredient>>,\"result\":<<item-id:result>>}"
+            "{\"type\":\"<<type>>\",",
+            "\"addition\":{\"item\":<<ingredient:addition>>},",
+            "\"base\":{\"item\":<<ingredient:base>>},",
+            "\"template\":{\"item\":<<ingredient:template>>},",
+            "\"result\":{\"item\":<<itemstack:result>>}",
+            "}"
           ]
         }
       ]

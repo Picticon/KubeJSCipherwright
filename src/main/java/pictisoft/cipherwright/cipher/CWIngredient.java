@@ -2,14 +2,19 @@ package pictisoft.cipherwright.cipher;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.apache.commons.lang3.tuple.Pair;
 import pictisoft.cipherwright.util.ItemAndIngredientHelpers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +66,8 @@ public abstract class CWIngredient
     public abstract String getUniqueIdentifier();
 
     public abstract Character getCharacter();
+
+    public abstract String toKubeJS(boolean includeWeakNBT);
 
     public static class CWIngredientTag extends CWIngredient
     {
@@ -118,6 +125,12 @@ public abstract class CWIngredient
             return '?';
         }
 
+        @Override
+        public String toKubeJS(boolean includeWeakNBT)
+        {
+            return "?";
+        }
+
         public TagKey<Item> getTagKey()
         {
             return TagKey.create(Registries.ITEM, taglocation);
@@ -150,6 +163,11 @@ public abstract class CWIngredient
             return itemStack.getItem().getDescription().getString().charAt(0);
         }
 
+        @Override
+        public String toKubeJS(boolean weaknbt)
+        {
+            return ItemAndIngredientHelpers.itemStackToKubeJS(itemStack, weaknbt);
+        }
 
         @Override
         public JsonElement toJson()

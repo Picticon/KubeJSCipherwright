@@ -6,85 +6,117 @@ import net.minecraftforge.fluids.FluidStack;
 
 import java.util.*;
 
+//
+// base class for the encoding classes.
+// encoders take the recipe make the outputs.
+// currently, just JSON and KubeJS.
+//
 public abstract class CipherEncoderBase
 {
-    private final CipherTemplate.DataLoad data;
+    protected final CipherTemplate.DataLoad data;
 
     public CipherEncoderBase(CipherTemplate.DataLoad data)
     {
         this.data = data;
     }
 
-    private static CipherEncoderBase getEncoder(String format, CipherTemplate.DataLoad data)
+    // factory to return an encoder
+    private static CipherEncoderBase getEncoder(CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
     {
-        if (Objects.equals(format, "kubejs")) return new CipherEncoderKubeJS(data);
+        if (format== CipherTemplate.FORMAT.KUBEJS) return new CipherEncoderKubeJS(data);
         return new CipherEncoderJSON(data);
     }
 
-    public static String slotsToIngredients(String format, List<CipherSlot> slots, CipherTemplate.DataLoad data)
+    // returns a string representing a list of slot ingredients
+    public static String slotsToIngredients(CipherTemplate.FORMAT format, List<CipherSlot> slots, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeIngredients(slots);
     }
 
-    public static String slotToItemStack(CipherSlot slot, String format, CipherTemplate.DataLoad data)
+    protected abstract String encodeIngredients(List<CipherSlot> slots);
+    //
+
+    // returns a string representing an itemstack when given an item stack
+    public static String slotToItemStack(CipherSlot slot, CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeItemStack(r.getItemStack(slot));
     }
 
-    public static String slotToFluidStack(CipherSlot slot, String format, CipherTemplate.DataLoad data)
+    protected abstract String encodeItemStack(ItemStack itemStack);
+    //
+
+    // returns a string when given a fluid stack
+    public static String slotToFluidStack(CipherSlot slot, CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeFluidStack(r.getFluidStack(slot));
     }
 
-    public static String slotToItemStackCount(CipherSlot slot, String format, CipherTemplate.DataLoad data)
+    protected abstract String encodeFluidStack(FluidStack fluidStack);
+    //
+
+    // returns a string representing a COUNT when given a single slot
+    public static String slotToItemStackCount(CipherSlot slot, CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
-        if (slot.getMode() == CipherSlot.SlotMode.ITEM)
-            return r.encodeItemStackCount(r.getItemStack(slot));
-        if (slot.getMode() == CipherSlot.SlotMode.FLUID)
-            return r.encodeFluidStackAmount(r.getFluidStack(slot));
-        if (slot.getMode() == CipherSlot.SlotMode.FLUIDTAG)
-            return r.encodeFluidTagAmount(slot.getFluidTagAmount());
-        if (slot.getMode() == CipherSlot.SlotMode.TAG)
-            return r.encodeTagItemCount(slot.getTagCount());
+        if (slot.getMode() == CipherSlot.SlotMode.ITEM) return r.encodeItemStackCount(r.getItemStack(slot));
+        if (slot.getMode() == CipherSlot.SlotMode.FLUID) return r.encodeFluidStackAmount(r.getFluidStack(slot));
+        if (slot.getMode() == CipherSlot.SlotMode.FLUIDTAG) return r.encodeFluidTagAmount(slot.getFluidTagAmount());
+        if (slot.getMode() == CipherSlot.SlotMode.TAG) return r.encodeTagItemCount(slot.getTagCount());
         return "??";
     }
 
-    public static String slotToItemStackId(CipherSlot slot, String format, CipherTemplate.DataLoad data)
+    // returns a string representing the ID of a slot's itemstack
+    public static String slotToItemStackId(CipherSlot slot, CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeItemStackId(r.getItemStack(slot));
     }
 
-    public static String mapToPatternKey(String format, Map<String, CWIngredient> map, CipherTemplate.DataLoad data)
+    // returns a string representing the pattern of a shaped craft. This can be 3x3 up to 9x9 or even higher
+    public static String mapToPatternKey(CipherTemplate.FORMAT format, Map<String, CWIngredient> map, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodePatternKey(map);
     }
 
+    protected abstract String encodePatternKey(Map<String, CWIngredient> map);
+    //
 
-    public static String mapToPattern(String format, String[] encoded, CipherTemplate.DataLoad data)
+    // returns a string representing the map of a pattern's inputs for a shaped/shapeless craft
+    public static String mapToPattern(CipherTemplate.FORMAT format, String[] encoded, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodePattern(encoded);
     }
 
-    public static String slotToIngredient(String format, CipherSlot cipherSlot, CipherTemplate.DataLoad data)
+    protected abstract String encodePattern(String[] encoded);
+    //
+
+    // returns a string for an ingredient slot
+    public static String slotToIngredient(CipherTemplate.FORMAT format, CipherSlot cipherSlot, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeIngredient(cipherSlot);
     }
 
-    public static String slotToItemStacks(String format, List<CipherSlot> slots, CipherTemplate.DataLoad data)
+    protected abstract String encodeIngredient(CipherSlot cipherSlot);
+    //
+
+    // returns a string representing itemstacks in an array of slots
+    public static String slotToItemStacks(CipherTemplate.FORMAT format, List<CipherSlot> slots, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeItemStacks(slots);
     }
 
-    public static String encodeParameter(String format, String path, CipherTemplate.DataLoad data)
+    protected abstract String encodeItemStacks(List<CipherSlot> slots);
+    //
+
+    // returns a string representing a parameter
+    public static String encodeParameter(CipherTemplate.FORMAT format, String path, CipherTemplate.DataLoad data)
     {
         CipherEncoderBase r = getEncoder(format, data);
         return r.encodeParameter(path, data);
@@ -121,16 +153,8 @@ public abstract class CipherEncoderBase
         return replacement;
     }
 
-    protected abstract String encodeItemStacks(List<CipherSlot> slots);
-
 //    protected abstract String encodeItemStacks(List<ItemStack> itemStacks);
 //    protected abstract String encodeIngredient(Ingredient ingredient);
-
-    protected abstract String encodeIngredient(CipherSlot cipherSlot);
-
-    protected abstract String encodeItemStack(ItemStack itemStack);
-
-    protected abstract String encodeFluidStack(FluidStack fluidStack);
 
     protected String encodeItemStackCount(ItemStack itemStack)
     {
@@ -143,7 +167,6 @@ public abstract class CipherEncoderBase
         return "\"" + loc + "\"";
     }
 
-
     protected String encodeFluidStackAmount(FluidStack fluidStack)
     {
         return String.valueOf(fluidStack.getAmount());
@@ -153,16 +176,11 @@ public abstract class CipherEncoderBase
     {
         return String.valueOf(amount);
     }
+
     protected String encodeFluidTagAmount(int amount)
     {
         return String.valueOf(amount);
     }
-
-    protected abstract String encodeIngredients(List<CipherSlot> slots);
-
-    protected abstract String encodePattern(String[] encoded);
-
-    protected abstract String encodePatternKey(Map<String, CWIngredient> map);
 
     protected ItemStack getItemStack(CipherSlot slot)
     {
