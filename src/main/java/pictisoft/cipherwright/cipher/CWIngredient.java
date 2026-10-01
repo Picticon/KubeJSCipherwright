@@ -128,7 +128,7 @@ public abstract class CWIngredient
         @Override
         public String toKubeJS(boolean includeWeakNBT)
         {
-            return "?";
+            return "\"#" + taglocation + "\"";
         }
 
         public TagKey<Item> getTagKey()

@@ -25,8 +25,10 @@ public class CipherIllustration extends CipherGridObject
     private float alpha = 1f;
     private String formula;
     private String condition;
+    private String color;
+    private String zorder;
 
-    //    public static void load(List<CipherIllustration> illustrations, JsonObject json)
+    //    public static void load(List<CipherI llustration> illustrations, JsonObject json)
 //    {
 //        var template = TryParse(json);
 //        illustrations.add(template);
@@ -48,6 +50,8 @@ public class CipherIllustration extends CipherGridObject
             if (input.has("scale")) ret.scale = input.get("scale").getAsFloat();
             if (input.has("alpha")) ret.alpha = input.get("alpha").getAsFloat();
             if (input.has("condition")) ret.condition = input.get("condition").getAsString();
+            if (input.has("color")) ret.color = input.get("color").getAsString();
+            if (input.has("zorder")) ret.zorder = input.get("zorder").getAsString();
         }
     }
 
@@ -62,7 +66,13 @@ public class CipherIllustration extends CipherGridObject
                 || type.equals("text")
                 || type.equals("item")
                 || type.equals("highlight")
+                || type.equals("box")
                 ;
+    }
+
+    public boolean isInFront()
+    {
+        return (zorder != null && zorder.equals("front"));
     }
 
     public void render(GuiGraphics gui, GUIElementRenderer guiRenderer, Map<String, String> cipherParameters)
@@ -98,8 +108,10 @@ public class CipherIllustration extends CipherGridObject
                 renderText(gui, cipherParameters);
                 break;
             case "item":
-
                 renderItem(gui);
+                break;
+            case "box":
+                gui.renderOutline(x-1, y-1, width, height, ColorToInt(color));
                 break;
         }
         if (alpha > 0 && alpha < 1)
@@ -109,6 +121,19 @@ public class CipherIllustration extends CipherGridObject
         }
         //gui.setColor(1, 1, 1, 1);
         gui.pose().popPose();
+    }
+
+    private int ColorToInt(String input)
+    {
+        if (input == null) return 0xffff0000;
+        String hex = input
+                .replace("#", "")
+                .replace("0x", "");
+        if (!hex.matches("[0-9a-fA-F]{6}"))
+        {
+            return 0xffff0000; // red
+        }
+        return 0xFF000000 | Integer.parseInt(hex, 16);
     }
 
     private void renderItem(GuiGraphics gui)

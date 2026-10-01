@@ -1,0 +1,140 @@
+{
+  "type": "extendedcrafting:shaped_table",
+  "name": "Extended Shaped (3x3, 5x5, 7x7, 9x9)",
+  "category": "Extended Crafting",
+  "notes": "Make sure that the recipe fits inside the targeted tier of table (red box). The size is not enforced.",
+  "inputs": [
+    {
+      "path": "pattern",
+      "key": "key",
+      "type": "shaped",
+      "gridx": 0,
+      "gridy": 0,
+      "repeat": {
+        "shape": "array",
+        "rows": 9,
+        "cols": 9
+      },
+      "single": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "result",
+      "type": "itemstack",
+      "gridx": 9.5,
+      "gridy": 4,
+      "style": "large",
+      "allowtag": false
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "box",
+      "zorder": "front",
+      "gridx": 3,
+      "gridy": 3,
+      "gridw": 3,
+      "gridh": 3,
+      "condition": "tier:equals:1"
+    },
+    {
+      "type": "box",
+      "zorder": "front",
+      "gridx": 2,
+      "gridy": 2,
+      "gridw": 5,
+      "gridh": 5,
+      "condition": "tier:equals:2"
+    },
+    {
+      "type": "box",
+      "zorder": "front",
+      "gridx": 1,
+      "gridy": 1,
+      "gridw": 7,
+      "gridh": 7,
+      "condition": "tier:equals:3"
+    },
+    {
+      "type": "box",
+      "zorder": "front",
+      "gridx": 0,
+      "gridy": 0,
+      "gridw": 9,
+      "gridh": 9,
+      "condition": "tier:equals:4"
+    }
+  ],
+  "parameters": [
+    {
+      "path": "tier",
+      "label": "Table Tier",
+      "type": "combo-number",
+      "tooltip": "Level of table. \"Any\" will accept any pattern that fits.",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "descriptions": [
+        "Any",
+        "Tier 3x3",
+        "Tier 5x5",
+        "Tier 7x7",
+        "Tier 9x9"
+      ],
+      "gridx": 5,
+      "gridy": 9.2,
+      "gridw": 3
+    }
+  ],
+  "templates": [
+    {
+      "name": "KubeJS",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:result>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.custom(<<template:JSON>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "snippets": [
+        {
+          "title": "JSON",
+          "fragments": [
+            "{",
+            "\"type\":\"<<type>>\",",
+            "\"tier\":<<parameter:tier>>,",
+            "\"key\":<<key:pattern>>,",
+            "\"pattern\":<<pattern:pattern>>,",
+            "\"result\":<<itemstack:result>>",
+            "}"
+          ]
+        }
+      ]
+    }
+  ]
+}

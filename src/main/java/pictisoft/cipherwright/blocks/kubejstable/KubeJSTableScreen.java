@@ -248,16 +248,16 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
         int relY = (this.height - this.imageHeight) / 2;
         slice9.drawNineSlice(gui, relX, relY, this.imageWidth, this.imageHeight);
 
-        // render illustrations
+        // render illustrations (background)
         gui.pose().pushPose();
         gui.pose().translate(workArea.getX(), workArea.getY(), 0);
         for (var illustration : container.getBlockEntity().getCipher().getIllustrations())
         {
-            illustration.render(gui, guiRenderer, this.container.getBlockEntity().getCipherParameters());
+            if (!illustration.isInFront())
+                illustration.render(gui, guiRenderer, this.container.getBlockEntity().getCipherParameters());
         }
         gui.pose().popPose();
         gui.pose().pushPose();
-
 
         if (_selectedTab == PAGE_ITEM_EDIT && scrollTags != null && scrollNBT != null)
         {
@@ -382,6 +382,17 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
             }
         }
         gui.pose().popPose();
+
+        // render illustrations (foreground)
+        gui.pose().pushPose();
+        gui.pose().translate(workArea.getX(), workArea.getY(), 0);
+        for (var illustration : container.getBlockEntity().getCipher().getIllustrations())
+        {
+            if (illustration.isInFront())
+                illustration.render(gui, guiRenderer, this.container.getBlockEntity().getCipherParameters());
+        }
+        gui.pose().popPose();
+        gui.pose().pushPose();
 
         // render original recipe id
         if (btnClearOriginalRecipe != null && children().contains(btnClearOriginalRecipe))
@@ -1208,23 +1219,23 @@ public class KubeJSTableScreen extends AbstractContainerScreen<KubeJSTableContai
 
     private void makeTabButtons()
     {
-        tabItemEdit = new FakeTabButton(tabArea.getX()-40, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Item"), (a) -> {
+        tabItemEdit = new FakeTabButton(tabArea.getX() - 40, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Item"), (a) -> {
             this.setSelectedTab(PAGE_ITEM_EDIT);
         });
         tabItemEdit.setSelected(_selectedTab == PAGE_ITEM_EDIT);
 
-        tabRecipes = new FakeTabButton(tabArea.getX()-40 + TAB_BUTTON_WIDTH, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Recipe"), (a) -> {
+        tabRecipes = new FakeTabButton(tabArea.getX() - 40 + TAB_BUTTON_WIDTH, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Recipe"), (a) -> {
             this.setSelectedTab(PAGE_RECIPES);
         });
         tabRecipes.setSelected(_selectedTab == PAGE_RECIPES);
 
-        tabClipboard = new FakeTabButton(tabArea.getX()-40 + TAB_BUTTON_WIDTH * 2, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Clipboard"),
+        tabClipboard = new FakeTabButton(tabArea.getX() - 40 + TAB_BUTTON_WIDTH * 2, tabArea.getY() - 20, TAB_BUTTON_WIDTH, 20, Component.literal("Clipboard"),
                 (a) -> {
                     this.setSelectedTab(PAGE_CLIPBOARD);
                 });
         tabClipboard.setSelected(_selectedTab == PAGE_CLIPBOARD);
 
-        tabSettings = new FakeTabButton(tabArea.getX()-40 + TAB_BUTTON_WIDTH * 3, tabArea.getY() - 20, TAB_SETTINGS_WIDTH, 20, Component.literal("?"),
+        tabSettings = new FakeTabButton(tabArea.getX() - 40 + TAB_BUTTON_WIDTH * 3, tabArea.getY() - 20, TAB_SETTINGS_WIDTH, 20, Component.literal("?"),
                 (a) -> {
                     this.setSelectedTab(PAGE_SETTINGS);
                 });

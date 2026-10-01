@@ -3,6 +3,8 @@ package pictisoft.cipherwright.cipher;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -21,9 +23,10 @@ public abstract class CipherEncoderBase
     }
 
     // factory to return an encoder
-    private static CipherEncoderBase getEncoder(CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
+    @Contract("_, _ -> new")
+    private static @NotNull CipherEncoderBase getEncoder(CipherTemplate.FORMAT format, CipherTemplate.DataLoad data)
     {
-        if (format== CipherTemplate.FORMAT.KUBEJS) return new CipherEncoderKubeJS(data);
+        if (format == CipherTemplate.FORMAT.KUBEJS) return new CipherEncoderKubeJS(data);
         return new CipherEncoderJSON(data);
     }
 
@@ -136,10 +139,14 @@ public abstract class CipherEncoderBase
             }
             if (p.getType().equals("number") || p.getType().equals("combo-number"))
             {
+                if (val == null || val.isBlank()) return "0";
                 try
                 {
                     var value = Double.parseDouble(val);
-                    replacement = String.valueOf(value);
+                    if (value == Math.round(value))
+                        replacement = String.valueOf((int) value);
+                    else
+                        replacement = String.valueOf(value);
                 } catch (NumberFormatException e)
                 {
                     replacement = "\"" + val + "\"";

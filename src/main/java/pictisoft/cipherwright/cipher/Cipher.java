@@ -35,6 +35,7 @@ public class Cipher
     private List<CipherTemplate> templates;
     private AABB bounds;
     private String category;
+    private String notes;
     //protected List<CipherParameters> parameters;
     //protected List<CipherDecorators> decorators;
 
@@ -52,6 +53,7 @@ public class Cipher
         ret.padRight = optionalInt(json, "padright");
         ret.name = optionalString(json, "name", ret.recipeTypeIdThisIsFor.toString());
         ret.category = optionalString(json, "category", ret.recipeTypeIdThisIsFor.toString());
+        ret.notes = optionalString(json, "notes", ret.recipeTypeIdThisIsFor.toString());
         if (json.has("inputs"))
         {
             var inputs = json.get("inputs").getAsJsonArray();

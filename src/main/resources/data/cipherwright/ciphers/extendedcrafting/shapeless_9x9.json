@@ -1,0 +1,82 @@
+{
+  "type": "extendedcrafting:shapeless_table",
+  "name": "Extended Shapeless (3x3, 5x5, 7x7, 9x9)",
+  "category": "Extended Crafting",
+  "notes": "Make sure that the recipe fits inside the targeted tier of table (red box). The size is not enforced.",
+  "inputs": [
+    {
+      "type": "ingredient",
+      "path": "ingredients",
+      "gridx": 0,
+      "gridy": 0,
+      "single": true,
+      "repeat": {
+        "shape": "array",
+        "rows": 9,
+        "cols": 9
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "type": "itemstack",
+      "path": "result",
+      "gridx": 9.5,
+      "gridy": 4,
+      "style": "large",
+      "allowtag": false
+    }
+  ],
+  "illustrations": [
+    {
+      "type": "item",
+      "item": "minecraft:crafting_table",
+      "gridx": 7,
+      "gridy": 1
+    }
+  ],
+  "parameters": [
+  ],
+  "templates": [
+    {
+      "name": "KubeJS",
+      "format": "kubejs",
+      "snippets": [
+        {
+          "title": "Comment",
+          "condition": "comment",
+          "fragments": [
+            "// <<description:result>>"
+          ]
+        },
+        {
+          "title": "Create",
+          "fragments": [
+            "event.shapeless(",
+            "<<itemstack:result>>,",
+            "<<ingredients:ingredients>>);"
+          ]
+        },
+        {
+          "title": "Delete",
+          "condition": "remove",
+          "fragments": [
+            "event.remove({id:\"<<oldid>>\"});"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "JSON",
+      "format": "json",
+      "snippets": [
+        {
+          "title": "JSON",
+          "fragments": [
+            "{\"type\":\"<<type>>\",\"ingredients\":<<ingredients:ingredients>>,\"result\":<<itemstack:result>>}"
+          ]
+        }
+      ]
+    }
+  ]
+}
